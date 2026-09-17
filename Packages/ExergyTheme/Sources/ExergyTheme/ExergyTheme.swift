@@ -223,7 +223,7 @@ public struct ExergyFocusRing: View {
             ZStack {
                 Circle()
                     .stroke(Color.exergyBorder.opacity(0.7), lineWidth: lineWidth)
-                if let remainingTrim {
+                if let remainingTrim, remainingTrim > 0 {
                     Circle()
                         .trim(from: 0, to: remainingTrim)
                         .stroke(
@@ -233,7 +233,7 @@ public struct ExergyFocusRing: View {
                         .rotationEffect(.degrees(-90))
                         .animation(ExergyMotion.animation(reduceMotion: reduceMotion), value: remainingTrim)
                 }
-                if showsPaceDot, let expectedRemaining {
+                if showsPaceDot, let expectedRemaining, expectedRemaining > 0 {
                     let angle = Angle.degrees(expectedRemaining * 360 - 90)
                     let radius = size / 2
                     Circle()

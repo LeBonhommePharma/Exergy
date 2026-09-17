@@ -46,6 +46,7 @@ final class ExergyThemeTests: XCTestCase {
         let full = ExergyRingGeometry.remainingTrim(usedPercent: 100)
         XCTAssertNotNil(full)
         XCTAssertEqual(full!, 0.0, accuracy: 0.0001)
+        // Geometry still reports Some(0); FocusRing/QuotaViews omit the gold fill.
 
         XCTAssertNil(ExergyRingGeometry.remainingTrim(usedPercent: nil))
         XCTAssertNil(ExergyRingGeometry.remainingTrim(usedPercent: .nan))

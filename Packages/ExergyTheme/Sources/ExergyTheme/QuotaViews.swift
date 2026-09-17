@@ -96,12 +96,12 @@ public struct QuotaBullet: View {
                     ZStack(alignment: .leading) {
                         Capsule()
                             .fill(Color.exergyBorder.opacity(0.45))
-                        if let remainingTrim = ExergyRingGeometry.remainingTrim(usedPercent: used) {
+                        if let remainingTrim = ExergyRingGeometry.remainingTrim(usedPercent: used), remainingTrim > 0 {
                             Capsule()
                                 .fill(Color.exergyRemaining(band))
                                 .frame(width: geo.size.width * CGFloat(min(1, max(0, remainingTrim))))
                         }
-                        if let expectedTrim = ExergyRingGeometry.remainingTrim(usedPercent: expected) {
+                        if let expectedTrim = ExergyRingGeometry.remainingTrim(usedPercent: expected), expectedTrim > 0 {
                             Capsule()
                                 .fill(Color.exergyInk)
                                 .frame(width: 2, height: 10)

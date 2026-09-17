@@ -324,6 +324,13 @@ def test_design_system_and_tokens() -> None:
         fail("Mac shell must keep MenuBarExtra and floating HUD")
     if "ExergyRingGeometry.remainingTrim" not in theme:
         fail("focus rings must fill remaining work, not used spend")
+    if "if let remainingTrim, remainingTrim > 0" not in theme:
+        fail("focus rings must omit gold fill when remainingTrim is 0 (used 100%)")
+    quota = read("Packages/ExergyTheme/Sources/ExergyTheme/QuotaViews.swift")
+    if "remainingTrim > 0" not in quota:
+        fail("quota remaining bars must omit fill when remainingTrim is 0")
+    if "expectedTrim > 0" not in quota:
+        fail("quota pace marks must omit a 0-width stub when expected remaining is 0")
     if "ExergyPressStyle" not in read("Packages/ExergyTheme/Sources/ExergyTheme/ExergyControls.swift"):
         fail("buttons must use ExergyPressStyle (Reduce Motion aware)")
     if "ExergyLoadingSkeleton" not in read("Packages/ExergyTheme/Sources/ExergyTheme/ExergyControls.swift"):
@@ -431,6 +438,8 @@ def test_design_system_and_tokens() -> None:
             fail("Watch docking ProgressView must omit the bar when total is unknown")
         if "progress.knownFraction" not in face_text:
             fail("Watch docking row must use knownFraction")
+        if "count unknown" not in face_text:
+            fail("Watch docking a11y must say count unknown when the total is missing")
     docking = shannon_root / "Packages/ShannonCore/Sources/ShannonCore/DockingProgress.swift"
     if docking.is_file():
         docking_text = docking.read_text(encoding="utf-8")
@@ -438,6 +447,14 @@ def test_design_system_and_tokens() -> None:
             fail("DockingProgress must expose percentLabel that fails closed on zero total")
         if "var knownFraction: Double?" not in docking_text:
             fail("DockingProgress must expose knownFraction so glances can omit unknown bars")
+        if 'public var countLabel: String { "\\(targetsComplete)/\\(targetsTotal)" }' in docking_text:
+            fail("DockingProgress countLabel must not interpolate 0/0 when total is unknown")
+        count_idx = docking_text.find("public var countLabel")
+        if count_idx < 0:
+            fail("DockingProgress must expose countLabel")
+        count_chunk = docking_text[count_idx : count_idx + 220]
+        if 'return "—"' not in count_chunk:
+            fail("DockingProgress countLabel must return — when total is unknown")
     pad_dock = shannon_root / "iPad/Sources/ShannonPad/Views/DockingProgressView.swift"
     if pad_dock.is_file() and 'Int(fraction * 100)' in pad_dock.read_text(encoding="utf-8"):
         fail("iPad docking ring must use percentLabel, not raw *100")
