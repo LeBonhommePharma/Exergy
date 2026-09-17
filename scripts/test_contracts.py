@@ -481,6 +481,35 @@ def test_design_system_and_tokens() -> None:
         fail("phone docking ring must omit fill when trim is 0")
     if phone_home.is_file() and "if trim > 0" not in phone_home.read_text(encoding="utf-8"):
         fail("phone docking ring must omit round-cap fill at 0%")
+    if phone_home.is_file() and "withAnimation(.shannonSnap)" in phone_home.read_text(encoding="utf-8"):
+        fail("phone notification swipe must honor Reduce Motion")
+    if phone_home.is_file() and ".shannon(.shannonSnap, reduceMotion: reduceMotion)" not in phone_home.read_text(
+        encoding="utf-8"
+    ):
+        fail("phone notification swipe must use shannon Snap gated by Reduce Motion")
+    pad_notes = shannon_root / "iPad/Sources/ShannonPad/Views/NotificationPanelView.swift"
+    if pad_notes.is_file() and "withAnimation(.shannonSnap)" in pad_notes.read_text(encoding="utf-8"):
+        fail("iPad notification swipe must honor Reduce Motion")
+    if pad_notes.is_file() and ".shannon(.shannonSnap, reduceMotion: reduceMotion)" not in pad_notes.read_text(
+        encoding="utf-8"
+    ):
+        fail("iPad notification swipe must use shannon Snap gated by Reduce Motion")
+    pad_grid = shannon_root / "iPad/Sources/ShannonPad/Views/DashboardGridView.swift"
+    if pad_grid.is_file() and "withAnimation(.shannonSnap)" in pad_grid.read_text(encoding="utf-8"):
+        fail("iPad drop highlight must honor Reduce Motion")
+    pad_overlay = shannon_root / "iPad/Sources/ShannonPad/Views/AnnotationOverlayView.swift"
+    if pad_overlay.is_file() and "withAnimation(.shannonSnap)" in pad_overlay.read_text(encoding="utf-8"):
+        fail("iPad Pencil squeeze menu must honor Reduce Motion")
+    pad_palette = shannon_root / "iPad/Sources/ShannonPad/Views/CommandPaletteView.swift"
+    if pad_palette.is_file() and "withAnimation(.shannonSnap)" in pad_palette.read_text(encoding="utf-8"):
+        fail("iPad command palette scroll must honor Reduce Motion")
+    pad_radial = shannon_root / "iPad/Sources/ShannonPad/Views/RadialMenuView.swift"
+    if pad_radial.is_file():
+        radial_text = pad_radial.read_text(encoding="utf-8")
+        if ".animation(.shannonSnap, value: appeared)" in radial_text:
+            fail("iPad radial menu must honor Reduce Motion")
+        if ".shannon(.shannonSnap, reduceMotion: reduceMotion)" not in radial_text:
+            fail("iPad radial menu must use shannon Snap gated by Reduce Motion")
     complication = shannon_root / "watchOS/Sources/ShannonWatchComplication/ShannonComplication.swift"
     if complication.is_file():
         complication_text = complication.read_text(encoding="utf-8")
