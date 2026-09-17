@@ -510,6 +510,44 @@ def test_design_system_and_tokens() -> None:
             fail("iPad radial menu must honor Reduce Motion")
         if ".shannon(.shannonSnap, reduceMotion: reduceMotion)" not in radial_text:
             fail("iPad radial menu must use shannon Snap gated by Reduce Motion")
+    pad_card = shannon_root / "iPad/Sources/ShannonPad/Views/AgentCardView.swift"
+    if pad_card.is_file() and ".animation(.shannonSnap, value: isDropTarget)" in pad_card.read_text(
+        encoding="utf-8"
+    ):
+        fail("iPad agent card drop highlight must honor Reduce Motion")
+    card_style = shannon_root / "Packages/ShannonTheme/Sources/ShannonTheme/ShannonCardStyle.swift"
+    if card_style.is_file() and ".animation(.shannonSnap, value: state.color)" in card_style.read_text(
+        encoding="utf-8"
+    ):
+        fail("status-dot color change must honor Reduce Motion")
+    pad_now = shannon_root / "iPad/Sources/ShannonPad/Views/NowPlayingCardView.swift"
+    if pad_now.is_file() and ".animation(.shannonSnap, value: isPlaying)" in pad_now.read_text(encoding="utf-8"):
+        fail("iPad now-playing waveform must honor Reduce Motion")
+    pad_hover = shannon_root / "iPad/Sources/ShannonPad/Views/HoverCursorView.swift"
+    if pad_hover.is_file() and ".animation(.shannonSnap, value: isHovering)" in pad_hover.read_text(
+        encoding="utf-8"
+    ):
+        fail("iPad Pencil hover overlay must honor Reduce Motion")
+    pad_gate = shannon_root / "iPad/Sources/ShannonPad/Views/GateCardView.swift"
+    if pad_gate.is_file() and "withAnimation(.shannonEase)" in pad_gate.read_text(encoding="utf-8"):
+        fail("iPad gate hover lift must honor Reduce Motion")
+    pad_hub_vm = shannon_root / "iPad/Sources/ShannonPad/ViewModels/AgentHubViewModel.swift"
+    if pad_hub_vm.is_file() and "withAnimation(.shannonEase)" in pad_hub_vm.read_text(encoding="utf-8"):
+        fail("iPad hub mutations must honor Reduce Motion")
+    pad_hub = shannon_root / "iPad/Sources/ShannonPad/Views/AgentHubView.swift"
+    if pad_hub.is_file() and ".animation(.shannonEase, value: hub.store.lastError)" in pad_hub.read_text(
+        encoding="utf-8"
+    ):
+        fail("iPad hub offline chip must honor Reduce Motion")
+    if phone_home.is_file() and ".animation(.shannonEase, value: snapshot.confirmations)" in phone_home.read_text(
+        encoding="utf-8"
+    ):
+        fail("phone hub list reflow must honor Reduce Motion")
+    pill_style = shannon_root / "Packages/ShannonTheme/Sources/ShannonTheme/ShannonPillStyle.swift"
+    if pill_style.is_file() and ".animation(.shannonFloat, value: isCollapsed)" in pill_style.read_text(
+        encoding="utf-8"
+    ):
+        fail("Mac pill island morph must honor Reduce Motion")
     complication = shannon_root / "watchOS/Sources/ShannonWatchComplication/ShannonComplication.swift"
     if complication.is_file():
         complication_text = complication.read_text(encoding="utf-8")
