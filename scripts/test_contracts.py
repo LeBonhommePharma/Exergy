@@ -317,6 +317,40 @@ def test_design_system_and_tokens() -> None:
         fail("Mac shell must keep MenuBarExtra and floating HUD")
 
 
+def _decode_plan_glance(raw: bytes) -> dict | None:
+    """Mirrors ExergyPlanGlance.decode — empty/malformed JSON is nil, never 0%."""
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None
+    if not isinstance(payload, dict):
+        return None
+    rings = payload.get("rings")
+    if not isinstance(rings, list):
+        return None
+    parts: list[str] = []
+    for ring in rings:
+        if not isinstance(ring, dict):
+            continue
+        used = ring.get("usedPercent")
+        if not isinstance(used, (int, float)) or isinstance(used, bool) or not math.isfinite(used):
+            continue
+        remaining = min(100.0, max(0.0, 100.0 - float(used)))
+        tag = None
+        for key in ("windowTag", "title", "provider"):
+            value = ring.get(key)
+            if isinstance(value, str) and value.strip():
+                tag = value.strip()
+                break
+        parts.append(f"{tag or 'win'} {remaining:.0f}% left")
+    if not parts:
+        return None
+    return {
+        "combinedChip": " · ".join(parts[:3]),
+        "demo": bool(payload.get("demo") or False),
+    }
+
+
 def test_glance_is_remaining() -> None:
     snap = read("Packages/ExergyCore/Sources/ExergyCore/Snapshot.swift")
     if "remainingChip" not in snap:
@@ -330,6 +364,39 @@ def test_glance_is_remaining() -> None:
             fail("Shannon glance chip must show remaining left, not used")
         if "used.isFinite" not in text:
             fail("Shannon glance must fail closed on non-finite used %")
+        if "guard let payload = try? decoder.decode(Payload.self, from: data) else {" not in text:
+            fail("ExergyPlanGlance.decode must fail closed on malformed JSON")
+        if "guard !parts.isEmpty else { return nil }" not in text:
+            fail("ExergyPlanGlance.decode must return nil for empty rings")
+
+
+def test_malformed_glance_json_is_nil() -> None:
+    good = _decode_plan_glance(
+        b'{"demo":true,"rings":[{"usedPercent":61,"windowTag":"Week","title":"Claude","provider":"claude"}]}'
+    )
+    if good != {"combinedChip": "Week 39% left", "demo": True}:
+        fail(f"valid glance decode drifted: {good}")
+    for raw in (
+        b"",
+        b"{",
+        b"null",
+        b"[]",
+        b"{}",
+        b'{"rings":[]}',
+        b'{"rings":[{"title":"Claude"}]}',
+        b'{"rings":[{"usedPercent":"nope","windowTag":"Week"}]}',
+        b'{"rings":[{"usedPercent":NaN,"windowTag":"Week"}]}',
+        b'{"rings":[{"usedPercent":Infinity,"windowTag":"Week"}]}',
+    ):
+        if _decode_plan_glance(raw) is not None:
+            fail(f"malformed glance must be nil, got a chip from {raw!r}")
+    tests = ROOT.parents[1] / "Pill/Tests/PillCoreTests/UsageCoreTests.swift"
+    if tests.is_file():
+        text = tests.read_text(encoding="utf-8")
+        if 'ExergyPlanGlance.decode(Data("{}".utf8))' not in text:
+            fail("Swift must assert empty object glance JSON → nil")
+        if 'ExergyPlanGlance.decode(Data("{\\"rings\\":[]}".utf8))' not in text:
+            fail("Swift must assert empty rings glance JSON → nil")
 
 
 def main() -> int:
@@ -345,6 +412,7 @@ def main() -> int:
         test_zero_third_party_deps,
         test_design_system_and_tokens,
         test_glance_is_remaining,
+        test_malformed_glance_json_is_nil,
     )
     for test in tests:
         test()
