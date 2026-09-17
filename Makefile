@@ -1,6 +1,9 @@
-.PHONY: test test-python test-core test-theme
+.PHONY: test test-python test-core test-theme icons
 
 test: test-core test-theme test-python
+
+icons:
+	python3 scripts/render_app_icons.py
 
 test-core:
 	swift test --package-path Packages/ExergyCore

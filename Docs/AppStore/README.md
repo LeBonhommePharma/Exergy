@@ -66,3 +66,5 @@ Local check:
 python3 Exergy/scripts/validate-submission.py
 python3 Exergy/scripts/test_contracts.py
 ```
+
+Icons: geometric remaining-work gauges (chrome gold `#C4A359` on slate `#0F172A`). Regenerators and the Claude Design handoff live in [CLAUDE_DESIGN_ICON_WORKORDER.md](CLAUDE_DESIGN_ICON_WORKORDER.md). `make -C Exergy icons` rewrites the PNGs.

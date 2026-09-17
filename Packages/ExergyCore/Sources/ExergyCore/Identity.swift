@@ -16,6 +16,7 @@ public enum ExergyIdentity: Sendable {
     public static let bundlePrefix = "com.lebonhommepharma.exergy"
     public static let iOSBundleID = "com.lebonhommepharma.exergy"
     public static let macBundleID = "com.lebonhommepharma.exergy.mac"
+    public static let padBundleID = "com.lebonhommepharma.exergy.pad"
     public static let watchBundleID = "com.lebonhommepharma.exergy.watchkitapp"
     public static let widgetBundleID = "com.lebonhommepharma.exergy.widget"
     public static let complicationBundleID = "com.lebonhommepharma.exergy.watchkitapp.complication"

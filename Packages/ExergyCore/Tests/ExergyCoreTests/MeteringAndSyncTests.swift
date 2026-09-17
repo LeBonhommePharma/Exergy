@@ -7,6 +7,28 @@ final class MeteringTests: XCTestCase {
         XCTAssertEqual(Metering.remainingPercent(used: 0), 100)
         XCTAssertEqual(Metering.remainingPercent(used: 100), 0)
         XCTAssertNil(Metering.remainingPercent(used: .nan))
+        XCTAssertNil(Metering.remainingPercent(used: .infinity))
+        XCTAssertNil(Metering.remainingPercent(used: -.infinity))
+        XCTAssertNil(Metering.remainingChip(tag: "Week", usedPercent: .infinity))
+        XCTAssertNil(Metering.remainingChip(tag: "Week", usedPercent: .nan))
+    }
+
+    func testPaceAndRemainingBandCodable() throws {
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+        for pace in PaceState.allCases {
+            XCTAssertEqual(try decoder.decode(PaceState.self, from: try encoder.encode(pace)), pace)
+        }
+        for band in RemainingBand.allCases {
+            XCTAssertEqual(
+                try decoder.decode(RemainingBand.self, from: try encoder.encode(band)),
+                band
+            )
+        }
+        XCTAssertEqual(
+            String(data: try encoder.encode(PaceState.ahead), encoding: .utf8),
+            "\"ahead\""
+        )
     }
 
     func testExpectedLinearPace() {

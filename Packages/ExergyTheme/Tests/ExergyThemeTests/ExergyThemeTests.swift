@@ -28,5 +28,9 @@ final class ExergyThemeTests: XCTestCase {
         XCTAssertEqual(ExergyPalette.darkBackground, 0x0F172A)
         XCTAssertEqual(ExergyPalette.destructive, 0xEF4444)
         XCTAssertEqual(ExergySymbol.usage.systemName, "gauge.with.needle")
+        _ = Color.exergyRemaining(.plentiful)
+        _ = Color.exergyRemaining(.watch)
+        _ = Color.exergyRemaining(.low)
+        _ = Color.exergyRemaining(.unknown)
     }
 }

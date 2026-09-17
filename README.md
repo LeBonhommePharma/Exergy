@@ -53,7 +53,7 @@ Two records (Apple’s stores are separate):
 1. **iOS / iPadOS + Watch companion** — `com.lebonhommepharma.exergy`
 2. **Mac** — `com.lebonhommepharma.exergy.mac`
 
-Checklist, metadata, privacy answers: [`Docs/AppStore/`](Docs/AppStore/README.md).
+Checklist, metadata, privacy answers: [`Docs/AppStore/`](Docs/AppStore/README.md). Icon masters + Claude Design workorder: [`Docs/AppStore/CLAUDE_DESIGN_ICON_WORKORDER.md`](Docs/AppStore/CLAUDE_DESIGN_ICON_WORKORDER.md).
 
 ## OAuth
 
