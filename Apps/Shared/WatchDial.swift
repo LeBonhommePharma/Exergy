@@ -10,9 +10,10 @@ public struct WatchDial: View {
     }
 
     public var body: some View {
+        let shown = Array(rings.prefix(3))
         ZStack {
-            ForEach(Array(rings.prefix(3).enumerated()), id: \.element.accountID) { index, ring in
-                QuotaRing(
+            ForEach(Array(shown.enumerated()), id: \.element.accountID) { index, ring in
+                ExergyFocusRing(
                     usedPercent: ring.usedPercent,
                     expectedPercent: nil,
                     accent: Color.exergyBrand(ring.accentHex),
@@ -21,7 +22,21 @@ public struct WatchDial: View {
                 )
                 .padding(CGFloat(index) * 10)
             }
+            if let remaining = shown.first?.remainingPercent {
+                Text("\(Int(remaining.rounded()))")
+                    .font(.system(.title3, design: .default).weight(.semibold).monospacedDigit())
+                    .foregroundStyle(Color.exergyInk)
+                    .minimumScaleFactor(0.6)
+                    .accessibilityHidden(true)
+            }
         }
-        .accessibilityLabel(rings.compactMap(\.chip).joined(separator: ", "))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibility)
+    }
+
+    private var accessibility: String {
+        let chips = rings.compactMap(\.chip)
+        if chips.isEmpty { return ExergyCopy.unknown.resolved }
+        return chips.joined(separator: ", ")
     }
 }

@@ -57,6 +57,19 @@ final class MeteringTests: XCTestCase {
         XCTAssertNil(w.remainingPercent)
         XCTAssertNil(w.shortLabel)
     }
+
+    func testRemainingBandAndChip() {
+        XCTAssertEqual(RemainingBand.classify(nil), .unknown)
+        XCTAssertEqual(RemainingBand.classify(80), .plentiful)
+        XCTAssertEqual(RemainingBand.classify(35), .watch)
+        XCTAssertEqual(RemainingBand.classify(15), .low)
+        XCTAssertEqual(RemainingBand.classify(.nan), .unknown)
+        let chip = Metering.remainingChip(tag: "Week", usedPercent: 61)
+        XCTAssertNotNil(chip)
+        XCTAssertTrue(chip?.contains("39") == true)
+        XCTAssertTrue(chip?.contains("Week") == true)
+        XCTAssertNil(Metering.remainingChip(tag: "Week", usedPercent: .nan))
+    }
 }
 
 final class PoolMergeTests: XCTestCase {

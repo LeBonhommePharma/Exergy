@@ -29,8 +29,26 @@ public enum ExergyCopy: Sendable {
     public static let addAccount = LocalizedCopy(en: "Add account", fr: "Ajouter un compte")
     public static let settings = LocalizedCopy(en: "Settings", fr: "Réglages")
     public static let remaining = LocalizedCopy(en: "Remaining", fr: "Restant")
+    public static let remainingPlenty = LocalizedCopy(en: "Plenty remaining", fr: "Beaucoup restant")
+    public static let remainingWatch = LocalizedCopy(en: "Running down", fr: "Ça descend")
+    public static let remainingLow = LocalizedCopy(en: "Low remaining", fr: "Peu restant")
     public static let used = LocalizedCopy(en: "Used", fr: "Utilisé")
     public static let pace = LocalizedCopy(en: "Pace", fr: "Rythme")
+    public static let provider = LocalizedCopy(en: "Provider", fr: "Fournisseur")
+    public static let nickname = LocalizedCopy(en: "Nickname", fr: "Surnom")
+    public static let oauthUnavailable = LocalizedCopy(
+        en: "OAuth client ID is not in this build. Paste an API key, or wait for App Store credentials.",
+        fr: "L’identifiant OAuth n’est pas dans cette build. Collez une clé API, ou attendez les identifiants App Store."
+    )
+    public static let floatingHUD = LocalizedCopy(en: "Floating remaining HUD", fr: "HUD flottant du restant")
+    public static let floatingHUDHint = LocalizedCopy(
+        en: "Always-on-top remaining meters. Hide when you want only the menu bar.",
+        fr: "Jauges restantes toujours au premier plan. Masquez pour ne garder que la barre de menus."
+    )
+    public static let refresh = LocalizedCopy(en: "Refresh meters", fr: "Actualiser les jauges")
+    public static let keyRequired = LocalizedCopy(en: "Paste a key before saving.", fr: "Collez une clé avant d’enregistrer.")
+    public static let saveKey = LocalizedCopy(en: "Save key", fr: "Enregistrer la clé")
+    public static let glanceTitle = LocalizedCopy(en: "Remaining", fr: "Restant")
     public static let ahead = LocalizedCopy(en: "Ahead of pace", fr: "En avance")
     public static let onPace = LocalizedCopy(en: "On pace", fr: "Dans les temps")
     public static let behind = LocalizedCopy(en: "Behind pace", fr: "En retard")

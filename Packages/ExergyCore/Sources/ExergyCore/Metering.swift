@@ -17,6 +17,33 @@ public enum PaceState: String, Sendable, Equatable, CaseIterable {
     }
 }
 
+/// Remaining-work band. Color is never the only cue — pair with ``copy``.
+public enum RemainingBand: String, Sendable, Equatable, CaseIterable {
+    case unknown
+    case plentiful
+    case watch
+    case low
+
+    public static let lowCeiling: Double = 15
+    public static let watchCeiling: Double = 35
+
+    public static func classify(_ remaining: Double?) -> RemainingBand {
+        guard let remaining, remaining.isFinite else { return .unknown }
+        if remaining <= lowCeiling { return .low }
+        if remaining <= watchCeiling { return .watch }
+        return .plentiful
+    }
+
+    public var copy: LocalizedCopy {
+        switch self {
+        case .unknown: return ExergyCopy.unknown
+        case .plentiful: return ExergyCopy.remainingPlenty
+        case .watch: return ExergyCopy.remainingWatch
+        case .low: return ExergyCopy.remainingLow
+        }
+    }
+}
+
 /// Pure metering. Formulas are the product spec; Swift and the Python contract tests share them.
 public enum Metering: Sendable {
     /// Percentage points of slack around even spend before we call it ahead/behind.
@@ -25,6 +52,18 @@ public enum Metering: Sendable {
     public static func remainingPercent(used: Double) -> Double? {
         guard used.isFinite else { return nil }
         return min(100, max(0, 100 - used))
+    }
+
+    /// Compact HUD chip. Uses remaining, never invents a percent from tokens.
+    public static func remainingChip(tag: String, usedPercent: Double) -> String? {
+        guard let remaining = remainingPercent(used: usedPercent) else { return nil }
+        let label = tag.trimmingCharacters(in: .whitespacesAndNewlines)
+        let head = label.isEmpty ? ExergyCopy.usage.resolved : label
+        return String(format: "%@ %.0f%% %@", head, remaining, ExergyCopy.remaining.resolved.lowercased())
+    }
+
+    public static func remainingBand(_ remaining: Double?) -> RemainingBand {
+        RemainingBand.classify(remaining)
     }
 
     /// Expected used % if spend were linear across the window. Nil when the window cannot be timed.

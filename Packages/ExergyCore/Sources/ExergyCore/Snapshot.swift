@@ -35,7 +35,7 @@ public struct ExergyGlancePayload: Equatable, Sendable, Codable {
         public var chip: String? {
             guard let used = usedPercent else { return nil }
             let tag = windowTag ?? provider.displayName
-            return String(format: "%@ %.0f%%", tag, used)
+            return Metering.remainingChip(tag: tag, usedPercent: used)
         }
     }
 

@@ -5,7 +5,8 @@ Shannon's pill already shows **session** usage (Codex `rate_limits`, Claude JSON
 Integration, fail-closed:
 
 - `UsageCore.ExergyPlanGlance` decodes `exergy-glance.json` from App Group `group.com.lebonhommepharma.exergy`.
-- `MacFloatingGlance.present(..., exergyUsageLabel:)` uses that chip only when no session usage was sourced.
+- `MacFloatingGlance.present(..., exergyUsageLabel:)` uses that chip only when no session usage was sourced. The chip is remaining (`39% left`), never used-as-if-remaining and never tokens.
+- The Mac floating glance HUD draws a gauge symbol beside the usage line.
 - Tokens are never in the JSON.
 
 Exergy apps do not link Pill. Pill does not link ExergyCore. The JSON schema is the contract.

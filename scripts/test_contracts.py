@@ -118,6 +118,56 @@ def test_zero_third_party_deps() -> None:
         fail("ExergyCore must not grow remote Swift dependencies")
 
 
+def test_design_system_and_tokens() -> None:
+    master = ROOT / "design-system/exergy/MASTER.md"
+    if not master.is_file():
+        fail("design-system/exergy/MASTER.md missing")
+    theme = read("Packages/ExergyTheme/Sources/ExergyTheme/ExergyTheme.swift")
+    for needle in (
+        "0xC4A359",
+        "0x0F172A",
+        "accessibilityReduceMotion",
+        "gauge.with.needle",
+        "ExergyPalette",
+    ):
+        if needle not in theme:
+            fail(f"ExergyTheme missing {needle}")
+    metering = read("Packages/ExergyCore/Sources/ExergyCore/Metering.swift")
+    if "RemainingBand" not in metering or "remainingChip" not in metering:
+        fail("Metering must expose RemainingBand and remainingChip")
+    for rel in (
+        "Apps/Mac/Sources/ExergyMacApp.swift",
+        "Apps/iOS/Sources/ExergyPhoneApp.swift",
+        "Apps/iPad/Sources/ExergyPadApp.swift",
+        "Apps/watchOS/Sources/ExergyWatchApp.swift",
+    ):
+        text = read(rel)
+        if "Color(.sRGB" in text:
+            fail(f"{rel} uses raw sRGB instead of tokens")
+        if any(ch in text for ch in ("🎨", "🚀", "⚙️", "✨")):
+            fail(f"{rel} uses emoji as chrome")
+    phone = read("Apps/iOS/Sources/ExergyPhoneApp.swift")
+    if "TabView" not in phone:
+        fail("iPhone shell must use TabView")
+    pad = read("Apps/iPad/Sources/ExergyPadApp.swift")
+    if "NavigationSplitView" not in pad:
+        fail("iPad shell must use NavigationSplitView")
+    mac = read("Apps/Mac/Sources/ExergyMacApp.swift")
+    if "MacGlanceHUD" not in mac or "MenuBarExtra" not in mac:
+        fail("Mac shell must keep MenuBarExtra and floating HUD")
+
+
+def test_glance_is_remaining() -> None:
+    snap = read("Packages/ExergyCore/Sources/ExergyCore/Snapshot.swift")
+    if "remainingChip" not in snap:
+        fail("Glance chips must go through remainingChip")
+    shannon = ROOT.parents[1] / "Pill/Sources/UsageCore/ExergyPlanGlance.swift"
+    if shannon.is_file():
+        text = shannon.read_text(encoding="utf-8")
+        if "%.0f%% left" not in text:
+            fail("Shannon glance chip must show remaining left, not used")
+
+
 def main() -> int:
     test_identity_bundle_ids()
     test_no_secrets_in_cloud_keys()
@@ -126,12 +176,14 @@ def main() -> int:
     test_pace_formula()
     test_icon_png()
     test_zero_third_party_deps()
+    test_design_system_and_tokens()
+    test_glance_is_remaining()
     if FAILS:
         print("FAIL")
         for item in FAILS:
             print(" -", item)
         return 1
-    print(f"OK {7} contracts")
+    print(f"OK {9} contracts")
     return 0
 
 

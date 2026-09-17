@@ -14,10 +14,10 @@ This tree lives in **ShannonUI** so it can reuse the multi-Apple layout, CloudKi
 
 | Surface | Job |
 |---|---|
-| **Mac** (`Apps/Mac`) | Menu-bar tanks + popover. Optional local JSON import (user-selected files, sandboxed). |
-| **iPhone** (`Apps/iOS`) | Rings, accounts, OAuth, widgets. |
+| **Mac** (`Apps/Mac`) | Menu-bar remaining marks + popover + optional floating HUD. Optional local JSON import (user-selected files, sandboxed). |
+| **iPhone** (`Apps/iOS`) | Three tabs (Usage / Add / Settings), remaining rings, widgets. |
 | **iPad** (`Apps/iPad`) | Split canvas, not a phone scale-up. |
-| **Watch** | Combined dial + complications. |
+| **Watch** | Remaining dial + complications. |
 
 Compact surfaces show the first **three** enabled accounts. The pool is global: iPhone and Mac merge observations by max used-% inside the same reset window.
 

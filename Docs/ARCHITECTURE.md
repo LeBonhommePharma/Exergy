@@ -5,7 +5,7 @@ Apps (SwiftUI, minimal chrome)
   Mac menu bar · iPhone · iPad split · Watch dial
         │
         ▼
-ExergyTheme     rings, ink/gold, 8pt grid
+ExergyTheme     remaining rings, gold/slate tokens, 4/8pt grid, HUDs
         │
         ▼
 ExergyCore      models, PKCE, CloudKit codec, metering, Keychain policy

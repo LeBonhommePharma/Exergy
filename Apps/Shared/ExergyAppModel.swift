@@ -18,6 +18,7 @@ public final class ExergyAppModel {
     public var addingProvider: ProviderKind?
     public var draftLabel: String = ""
     public var draftAPIKey: String = ""
+    public var formError: String?
     public var oauthClientIDs: [ProviderKind: String]
     public var http: HTTPClient
     public let hasProvisioningProfile: Bool
@@ -46,6 +47,11 @@ public final class ExergyAppModel {
     }
 
     public func addAccount(provider: ProviderKind, method: AuthMethod) async throws {
+        formError = nil
+        if method == .apiKey, draftAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            formError = ExergyCopy.keyRequired.resolved
+            throw UsageFetchError.notConfigured
+        }
         let label = draftLabel.isEmpty ? provider.displayName : draftLabel
         let account = ExergyAccount(
             provider: provider,
