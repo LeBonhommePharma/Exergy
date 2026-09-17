@@ -4,27 +4,17 @@ import ExergyCore
 import ExergyTheme
 
 struct ExergyProvider: TimelineProvider {
+    /// Gallery / widget-picker sample only — never a live cache-miss fallback.
     func placeholder(in context: Context) -> ExergyWidgetEntry {
-        ExergyWidgetEntry(date: Date(), payload: DemoCatalog.snapshot().glance)
+        .demo()
     }
 
     func getSnapshot(in context: Context, completion: @escaping (ExergyWidgetEntry) -> Void) {
-        completion(placeholder(in: context))
+        completion(.live())
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<ExergyWidgetEntry>) -> Void) {
-        let entry = load() ?? placeholder(in: context)
-        completion(Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60))))
-    }
-
-    private func load() -> ExergyWidgetEntry? {
-        let url = FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: ExergyIdentity.appGroup)?
-            .appendingPathComponent(WidgetBridge.fileName)
-        guard let url, let data = try? Data(contentsOf: url),
-              let payload = try? WidgetBridge.read(data)
-        else { return nil }
-        return ExergyWidgetEntry(date: payload.generatedAt, payload: payload)
+        completion(Timeline(entries: [.live()], policy: .after(Date().addingTimeInterval(15 * 60))))
     }
 }
 

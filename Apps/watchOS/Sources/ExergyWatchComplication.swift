@@ -42,16 +42,16 @@ struct ComplicationView: View {
 }
 
 struct ComplicationProvider: TimelineProvider {
+    /// Gallery sample only — never a live cache-miss fallback.
     func placeholder(in context: Context) -> ExergyWidgetEntry {
-        ExergyWidgetEntry(date: Date(), payload: DemoCatalog.snapshot().glance)
+        .demo()
     }
 
     func getSnapshot(in context: Context, completion: @escaping (ExergyWidgetEntry) -> Void) {
-        completion(placeholder(in: context))
+        completion(.live())
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<ExergyWidgetEntry>) -> Void) {
-        let entry = placeholder(in: context)
-        completion(Timeline(entries: [entry], policy: .atEnd))
+        completion(Timeline(entries: [.live()], policy: .after(Date().addingTimeInterval(15 * 60))))
     }
 }

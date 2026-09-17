@@ -232,6 +232,13 @@ final class CloudRoundtripTests: XCTestCase {
         XCTAssertNotNil(again.combinedChip)
     }
 
+    func testEmptyGlanceDoesNotInventRemaining() {
+        let empty = ExergyGlancePayload.empty()
+        XCTAssertTrue(empty.rings.isEmpty)
+        XCTAssertFalse(empty.demo)
+        XCTAssertNil(empty.combinedChip)
+    }
+
     func testIntDoubleWidening() throws {
         let fields: CloudFields = [
             CloudKeys.accountID: .string(UUID().uuidString),

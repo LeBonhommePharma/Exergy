@@ -453,6 +453,23 @@ def test_glance_is_remaining() -> None:
         fail("Glance chips must go through remainingChip")
     if "usedPercent" in snap and "remainingChip(tag:" not in snap:
         fail("Glance chip helper must not skip remainingChip")
+    if "func empty(now: Date = Date())" not in snap:
+        fail("ExergyGlancePayload must expose empty() for cache-miss glances")
+    if "func loadFromAppGroup" not in snap:
+        fail("WidgetBridge must load App Group JSON without inventing remaining %")
+    widget = read("Apps/iOS/Sources/Widget/ExergyWidget.swift")
+    if "completion(.live())" not in widget:
+        fail("Exergy widget snapshot/timeline must use live App Group data")
+    if "?? placeholder" in widget or "completion(placeholder" in widget:
+        fail("Exergy widget must not fall back to demo remaining %")
+    complication = read("Apps/watchOS/Sources/ExergyWatchComplication.swift")
+    if "completion(.live())" not in complication:
+        fail("Watch complication snapshot/timeline must use live App Group data")
+    if "let entry = placeholder(in: context)" in complication:
+        fail("Watch complication must not always paint demo remaining %")
+    entry = read("Apps/Shared/ExergyWidgetEntry.swift")
+    if "static func live" not in entry or "static func unknown" not in entry:
+        fail("ExergyWidgetEntry must expose live/unknown, not demo-only")
     shannon = ROOT.parents[1] / "Pill/Sources/UsageCore/ExergyPlanGlance.swift"
     if shannon.is_file():
         text = shannon.read_text(encoding="utf-8")

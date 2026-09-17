@@ -49,6 +49,11 @@ public struct ExergyGlancePayload: Equatable, Sendable, Codable {
         self.rings = rings
     }
 
+    /// Cache-miss / gallery-live fallback. Empty rings paint `—`, never demo remaining %.
+    public static func empty(now: Date = Date()) -> ExergyGlancePayload {
+        ExergyGlancePayload(generatedAt: now, demo: false, rings: [])
+    }
+
     public var combinedChip: String? {
         let parts = rings.compactMap(\.chip)
         guard !parts.isEmpty else { return nil }
@@ -147,5 +152,19 @@ public enum WidgetBridge {
     public static func read(_ data: Data, decoder: JSONDecoder = JSONDecoder()) throws -> ExergyGlancePayload {
         decoder.dateDecodingStrategy = .iso8601
         return try decoder.decode(ExergyGlancePayload.self, from: data)
+    }
+
+    /// Live glance JSON from the App Group. Nil on miss/malformed — never invent remaining %.
+    public static func loadFromAppGroup(
+        fileManager: FileManager = .default,
+        appGroup: String = ExergyIdentity.appGroup
+    ) -> ExergyGlancePayload? {
+        let url = fileManager
+            .containerURL(forSecurityApplicationGroupIdentifier: appGroup)?
+            .appendingPathComponent(fileName)
+        guard let url, let data = try? Data(contentsOf: url),
+              let payload = try? read(data)
+        else { return nil }
+        return payload
     }
 }
