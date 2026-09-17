@@ -445,8 +445,18 @@ def test_design_system_and_tokens() -> None:
         if "if snapshot.fillFraction > 0" not in pill_text:
             fail("menu-bar battery ring must omit fill at 0%")
     bench = shannon_root / "Pill/Sources/PillCore/BenchmarkRun.swift"
-    if bench.is_file() and "var knownFraction: Double?" not in bench.read_text(encoding="utf-8"):
-        fail("BenchmarkRunSnapshot must expose knownFraction so hub rings omit unknown totals")
+    if bench.is_file():
+        bench_text = bench.read_text(encoding="utf-8")
+        if "var knownFraction: Double?" not in bench_text:
+            fail("BenchmarkRunSnapshot must expose knownFraction so hub rings omit unknown totals")
+        if 'return "\\(completed)/?"' in bench_text:
+            fail("BenchmarkRun countLabel must not invent a ? total")
+        count_idx = bench_text.find("public var countLabel")
+        if count_idx < 0:
+            fail("BenchmarkRunSnapshot must expose countLabel")
+        count_chunk = bench_text[count_idx : count_idx + 220]
+        if 'return "—"' not in count_chunk:
+            fail("BenchmarkRun countLabel must return — when total is unknown")
     popover = shannon_root / "Pill/Sources/ShannonPill/MenuBarPopoverView.swift"
     if popover.is_file():
         pop_text = popover.read_text(encoding="utf-8")
