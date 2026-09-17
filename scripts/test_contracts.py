@@ -402,6 +402,10 @@ def test_design_system_and_tokens() -> None:
             fail("idle cores must not paint a 2pt load stub")
         if "if h > 0" not in bar_text:
             fail("core bars must omit fill at 0% load")
+        if 'thermal?.label ?? "?"' in bar_text:
+            fail("thermal HUD must dash unknown pressure, not ?")
+        if 'thermal?.label ?? "—"' not in bar_text:
+            fail("thermal HUD must use — when the pressure label is missing")
     pill_rail = shannon_root / "Pill/Sources/ShannonPill/PillView.swift"
     if pill_rail.is_file():
         pill_text = pill_rail.read_text(encoding="utf-8")
