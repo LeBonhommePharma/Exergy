@@ -93,7 +93,15 @@ def test_pace_formula() -> None:
     if expected != 50:
         fail("pace midpoint should be 50")
     used = 56
-    assert used - expected > 5
+    if used - expected <= 5:
+        fail("used 56 vs expected 50 should be ahead")
+    # 5h window, 1 min remaining, used 90 → expected ≈ 99.67 → behind
+    duration = 300 * 60
+    remaining = 60
+    elapsed = duration - remaining
+    expected_end = elapsed / duration * 100
+    if 90 - expected_end >= -5:
+        fail("90% used with 1 min left of 5h is behind linear spend")
 
 
 def test_icon_png() -> None:

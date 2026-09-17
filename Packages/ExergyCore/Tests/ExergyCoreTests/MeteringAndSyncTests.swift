@@ -28,13 +28,23 @@ final class MeteringTests: XCTestCase {
 
     func testWindowPaceFromMinutes() {
         let now = Date(timeIntervalSince1970: 1_700_000_000)
-        let window = QuotaWindow(
+        // 5h window, 1 minute left → expected used ≈ 99.7%. 90% used is slower than linear.
+        let almostDone = QuotaWindow(
             kind: .fiveHour,
             usedPercent: 90,
             resetsAt: now.addingTimeInterval(60),
             windowMinutes: 300
         )
-        XCTAssertEqual(Metering.pace(now: now, window: window), .ahead)
+        XCTAssertEqual(Metering.pace(now: now, window: almostDone), .behind)
+
+        // Same 90% used one hour into a 5h window → expected 20%. Ahead of spend.
+        let early = QuotaWindow(
+            kind: .fiveHour,
+            usedPercent: 90,
+            resetsAt: now.addingTimeInterval(4 * 3600),
+            windowMinutes: 300
+        )
+        XCTAssertEqual(Metering.pace(now: now, window: early), .ahead)
     }
 
     func testFocusLimitThree() {
