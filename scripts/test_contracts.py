@@ -361,6 +361,8 @@ def test_design_system_and_tokens() -> None:
         fail("Shannon widget circular gauge must use knownFraction, not a 0% track")
     if widget.is_file() and "max(fraction, 0.001)" in widget.read_text(encoding="utf-8"):
         fail("Shannon widget ring must not paint a fake 0.1% sliver")
+    if widget.is_file() and "fallback: Self.placeholder" in widget.read_text(encoding="utf-8"):
+        fail("Shannon widget snapshot must not invent gallery docking on cache miss")
     if pad_batt.is_file() and "percent ?? 0" in pad_batt.read_text(encoding="utf-8"):
         fail("iPad battery rings must not coerce unknown percent to 0")
     if pad_batt.is_file() and "max(fraction, 0.001)" in pad_batt.read_text(encoding="utf-8"):
