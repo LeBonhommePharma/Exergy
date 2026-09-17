@@ -367,6 +367,20 @@ def test_design_system_and_tokens() -> None:
         fail("iPad battery rings must not coerce unknown percent to 0")
     if pad_batt.is_file() and "max(fraction, 0.001)" in pad_batt.read_text(encoding="utf-8"):
         fail("iPad battery rings must not paint a fake 0.1% sliver")
+    host_cap = shannon_root / "Packages/ShannonCore/Sources/ShannonCore/HostCapacityViews.swift"
+    if host_cap.is_file():
+        host_text = host_cap.read_text(encoding="utf-8")
+        if "return .green" in host_text or "return .orange" in host_text:
+            fail("host capacity gauges must use Shannon mint/violet/warning/error, not system green/orange")
+        if "max(3, geo.size.width" in host_text:
+            fail("host capacity gauges must not paint a 3pt sliver at 0%")
+    load_bar = shannon_root / "Pill/Sources/ShannonPill/MenuBarResourcesSection.swift"
+    if load_bar.is_file():
+        bar_text = load_bar.read_text(encoding="utf-8")
+        if "max(3, geo.size.width" in bar_text:
+            fail("menu-bar load bar must not paint a 3pt sliver when percent is 0 or unknown")
+        if "isPlaceholder ? 0" not in bar_text:
+            fail("unknown menu-bar load must use width 0, not a dim 0% fill")
     pad_card = shannon_root / "iPad/Sources/ShannonPad/Views/AgentCardView.swift"
     if pad_card.is_file() and "ShannonLayout.hitTarget" not in pad_card.read_text(encoding="utf-8"):
         fail("iPad annotate control must keep a 44pt hit target")
