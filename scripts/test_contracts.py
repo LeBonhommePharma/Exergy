@@ -444,6 +444,17 @@ def test_design_system_and_tokens() -> None:
             fail("Pill FlexAID ring must omit fill when benchmark total is unknown")
         if "if snapshot.fillFraction > 0" not in pill_text:
             fail("menu-bar battery ring must omit fill at 0%")
+        if ".animation(.easeOut(duration: 0.25), value: confirmation.flash)" in pill_text:
+            fail("pill confirmation flash must honor Reduce Motion")
+        if "reduceMotion ? nil : .easeOut(duration: 0.25)" not in pill_text:
+            fail("pill confirmation flash must nil animation when Reduce Motion is on")
+        if "snapshot.alertLevel == .normal\n                ? .default" in pill_text:
+            fail("menu-bar battery ring must not forever-pulse without Reduce Motion")
+        if "snapshot.alertLevel == .normal || reduceMotion" not in pill_text:
+            fail("menu-bar battery ring must honor Reduce Motion")
+        batt = pill_text[pill_text.find("struct BatteryRing") : pill_text.find("struct BatteryRing") + 800]
+        if "accessibilityReduceMotion" not in batt:
+            fail("menu-bar BatteryRing must read accessibilityReduceMotion")
     bench = shannon_root / "Pill/Sources/PillCore/BenchmarkRun.swift"
     if bench.is_file():
         bench_text = bench.read_text(encoding="utf-8")
