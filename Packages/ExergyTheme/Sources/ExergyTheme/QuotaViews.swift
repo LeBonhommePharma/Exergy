@@ -187,10 +187,13 @@ public struct MenuBarRemainingMarks: View {
         let rings = snapshot.glance.rings.prefix(3)
         HStack(spacing: 3) {
             ForEach(Array(rings), id: \.accountID) { ring in
-                Capsule()
-                    .fill(markFill(ring.remainingPercent, accentHex: ring.accentHex))
-                    .frame(width: 4, height: height(ring.remainingPercent))
-                    .accessibilityHidden(true)
+                let h = MenuBarRemainingMark.height(ring.remainingPercent)
+                if h > 0 {
+                    Capsule()
+                        .fill(markFill(ring.remainingPercent, accentHex: ring.accentHex))
+                        .frame(width: 4, height: h)
+                        .accessibilityHidden(true)
+                }
             }
         }
         .frame(minWidth: 12, minHeight: 16)
@@ -205,10 +208,13 @@ public struct MenuBarRemainingMarks: View {
         guard remaining != nil else { return Color.exergyMute.opacity(0.45) }
         return Color.exergyBrand(accentHex).opacity(0.95)
     }
+}
 
-    /// Unknown remaining is a mute stub, never a 0% gold bar.
-    private func height(_ remaining: Double?) -> CGFloat {
-        guard let remaining else { return 4 }
-        return max(4, 14 * CGFloat(remaining / 100))
+/// Menu-bar remaining ticks. Unknown is a mute stub; known 0% is omitted.
+enum MenuBarRemainingMark {
+    static func height(_ remaining: Double?) -> CGFloat {
+        guard let remaining, remaining.isFinite else { return 4 }
+        if remaining <= 0 { return 0 }
+        return max(4, 14 * CGFloat(min(remaining, 100) / 100))
     }
 }

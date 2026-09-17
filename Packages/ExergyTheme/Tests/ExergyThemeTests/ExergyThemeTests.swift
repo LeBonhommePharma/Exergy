@@ -53,6 +53,15 @@ final class ExergyThemeTests: XCTestCase {
         XCTAssertNil(ExergyRingGeometry.remainingTrim(usedPercent: .infinity))
     }
 
+    func testMenuBarRemainingMarksOmitZero() {
+        XCTAssertEqual(MenuBarRemainingMark.height(nil), 4)
+        XCTAssertEqual(MenuBarRemainingMark.height(.nan), 4)
+        XCTAssertEqual(MenuBarRemainingMark.height(0), 0)
+        XCTAssertEqual(MenuBarRemainingMark.height(-1), 0)
+        XCTAssertEqual(MenuBarRemainingMark.height(50), 7)
+        XCTAssertEqual(MenuBarRemainingMark.height(100), 14)
+    }
+
     func testPressStyleDoesNotUsePlain() {
         XCTAssertEqual(ExergyIconSize.hit, 44)
         XCTAssertEqual(ExergyMotion.short, 0.18, accuracy: 0.001)

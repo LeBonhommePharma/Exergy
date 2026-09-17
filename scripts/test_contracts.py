@@ -329,6 +329,12 @@ def test_design_system_and_tokens() -> None:
     quota = read("Packages/ExergyTheme/Sources/ExergyTheme/QuotaViews.swift")
     if "remainingTrim > 0" not in quota:
         fail("quota remaining bars must omit fill when remainingTrim is 0")
+    if "max(4, 14 * CGFloat(remaining / 100))" in quota:
+        fail("menu-bar remaining marks must not paint a 4pt gold stub at 0%")
+    if "remaining <= 0 { return 0 }" not in quota:
+        fail("menu-bar remaining marks must omit fill when remaining is 0")
+    if "if h > 0" not in quota:
+        fail("menu-bar remaining marks must skip drawing 0-height ticks")
     if "expectedTrim > 0" not in quota:
         fail("quota pace marks must omit a 0-width stub when expected remaining is 0")
     if "ExergyPressStyle" not in read("Packages/ExergyTheme/Sources/ExergyTheme/ExergyControls.swift"):
