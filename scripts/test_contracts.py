@@ -360,6 +360,8 @@ def test_design_system_and_tokens() -> None:
         fail("Shannon press style must honor Reduce Motion")
     if phone.is_file() and 'title: media.isPlaying ? "Pause" : "Play"' not in phone.read_text(encoding="utf-8"):
         fail("phone transport controls must keep visible accessibility labels")
+    if phone.is_file() and '"starting…"' in phone.read_text(encoding="utf-8"):
+        fail("phone docking status must not invent starting… when RMSD/ETA/target are missing")
     if watch.is_file() and ".labelStyle(.iconOnly)" in watch.read_text(encoding="utf-8"):
         fail("Watch gate Approve/Deny must show titles, not icon-only")
     if widget.is_file() and "Gauge(value: 0)" in widget.read_text(encoding="utf-8"):
