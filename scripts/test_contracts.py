@@ -381,6 +381,22 @@ def test_design_system_and_tokens() -> None:
             fail("menu-bar load bar must not paint a 3pt sliver when percent is 0 or unknown")
         if "isPlaceholder ? 0" not in bar_text:
             fail("unknown menu-bar load must use width 0, not a dim 0% fill")
+    pill_rail = shannon_root / "Pill/Sources/ShannonPill/PillView.swift"
+    if pill_rail.is_file():
+        pill_text = pill_rail.read_text(encoding="utf-8")
+        if "max(3, geo.size.width * CGFloat(sample.fill))" in pill_text:
+            fail("entropy fluid rail must not paint a 3pt sliver when H is absent")
+        if "if fillWidth > 0" not in pill_text:
+            fail("entropy fluid rail must omit fill when width is 0")
+    entropy_src = shannon_root / "Pill/Sources/PillCore/EntropyReading.swift"
+    if entropy_src.is_file():
+        entropy_text = entropy_src.read_text(encoding="utf-8")
+        if "return 0.04" in entropy_text:
+            fail("EntropyGauge must not invent a 4% fill for absent or non-finite bits")
+        if "max(t, 0.04)" in entropy_text:
+            fail("EntropyGauge fill must not floor measured H at 4%")
+        if "fill: 0.04" in entropy_text:
+            fail("absent entropy samples must use fill 0, not a 4% floor")
     pad_card = shannon_root / "iPad/Sources/ShannonPad/Views/AgentCardView.swift"
     if pad_card.is_file() and "ShannonLayout.hitTarget" not in pad_card.read_text(encoding="utf-8"):
         fail("iPad annotate control must keep a 44pt hit target")
