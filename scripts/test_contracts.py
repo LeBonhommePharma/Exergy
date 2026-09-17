@@ -357,11 +357,36 @@ def test_design_system_and_tokens() -> None:
         fail("Watch gate Approve/Deny must show titles, not icon-only")
     if widget.is_file() and "Gauge(value: 0)" in widget.read_text(encoding="utf-8"):
         fail("Shannon widget must not invent a 0-capacity gauge")
+    if widget.is_file() and "max(fraction, 0.001)" in widget.read_text(encoding="utf-8"):
+        fail("Shannon widget ring must not paint a fake 0.1% sliver")
     if pad_batt.is_file() and "percent ?? 0" in pad_batt.read_text(encoding="utf-8"):
         fail("iPad battery rings must not coerce unknown percent to 0")
     pad_card = shannon_root / "iPad/Sources/ShannonPad/Views/AgentCardView.swift"
     if pad_card.is_file() and "ShannonLayout.hitTarget" not in pad_card.read_text(encoding="utf-8"):
         fail("iPad annotate control must keep a 44pt hit target")
+    face = shannon_root / "watchOS/Sources/ShannonWatch/ShannonFaceView.swift"
+    if face.is_file():
+        face_text = face.read_text(encoding="utf-8")
+        if "Int(progress.fraction * 100)" in face_text:
+            fail("Watch docking percent must use percentLabel, not raw *100")
+        if 'String(format: "H %.2f"' in face_text:
+            fail("Watch face entropy must use entropyLabel, not raw H %.2f")
+        if "accessibilityAddTraits(.isButton)" in face_text:
+            fail("Watch clock must not advertise a button trait")
+    docking = shannon_root / "Packages/ShannonCore/Sources/ShannonCore/DockingProgress.swift"
+    if docking.is_file() and "percentLabel" not in docking.read_text(encoding="utf-8"):
+        fail("DockingProgress must expose percentLabel that fails closed on zero total")
+    pad_dock = shannon_root / "iPad/Sources/ShannonPad/Views/DockingProgressView.swift"
+    if pad_dock.is_file() and 'Int(fraction * 100)' in pad_dock.read_text(encoding="utf-8"):
+        fail("iPad docking ring must use percentLabel, not raw *100")
+    phone_home = shannon_root / "iOS/Sources/ShannonPhone/HomeView.swift"
+    if phone_home.is_file() and "max(fraction, 0.001)" in phone_home.read_text(encoding="utf-8"):
+        fail("phone docking ring must not paint a fake 0.1% sliver")
+    complication = shannon_root / "watchOS/Sources/ShannonWatchComplication/ShannonComplication.swift"
+    if complication.is_file() and 'String(format: "H %.2f"' in complication.read_text(
+        encoding="utf-8"
+    ):
+        fail("Watch complication entropy must use entropyLabel")
     shannon_theme = ROOT.parent / "Packages/ShannonTheme/Sources/ShannonTheme/SemanticColors.swift"
     if shannon_theme.is_file():
         st = shannon_theme.read_text(encoding="utf-8")
