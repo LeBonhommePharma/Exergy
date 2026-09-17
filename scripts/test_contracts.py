@@ -517,6 +517,8 @@ def test_design_system_and_tokens() -> None:
             fail("Watch complication entropy must use entropyLabel")
         if "Gauge(value: docking.fraction)" in complication_text:
             fail("Watch complication gauges must use knownFraction, not a 0% track")
+        if "entropy.isFinite, entropy > 0" not in complication_text:
+            fail("Watch complication entropy gauge must omit fill at H=0")
     shannon_theme = ROOT.parent / "Packages/ShannonTheme/Sources/ShannonTheme/SemanticColors.swift"
     if shannon_theme.is_file():
         st = shannon_theme.read_text(encoding="utf-8")
