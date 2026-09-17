@@ -357,10 +357,14 @@ def test_design_system_and_tokens() -> None:
         fail("Watch gate Approve/Deny must show titles, not icon-only")
     if widget.is_file() and "Gauge(value: 0)" in widget.read_text(encoding="utf-8"):
         fail("Shannon widget must not invent a 0-capacity gauge")
+    if widget.is_file() and "Gauge(value: docking.fraction)" in widget.read_text(encoding="utf-8"):
+        fail("Shannon widget circular gauge must use knownFraction, not a 0% track")
     if widget.is_file() and "max(fraction, 0.001)" in widget.read_text(encoding="utf-8"):
         fail("Shannon widget ring must not paint a fake 0.1% sliver")
     if pad_batt.is_file() and "percent ?? 0" in pad_batt.read_text(encoding="utf-8"):
         fail("iPad battery rings must not coerce unknown percent to 0")
+    if pad_batt.is_file() and "max(fraction, 0.001)" in pad_batt.read_text(encoding="utf-8"):
+        fail("iPad battery rings must not paint a fake 0.1% sliver")
     pad_card = shannon_root / "iPad/Sources/ShannonPad/Views/AgentCardView.swift"
     if pad_card.is_file() and "ShannonLayout.hitTarget" not in pad_card.read_text(encoding="utf-8"):
         fail("iPad annotate control must keep a 44pt hit target")
@@ -373,9 +377,17 @@ def test_design_system_and_tokens() -> None:
             fail("Watch face entropy must use entropyLabel, not raw H %.2f")
         if "accessibilityAddTraits(.isButton)" in face_text:
             fail("Watch clock must not advertise a button trait")
+        if "progress.targetsTotal > 0 ? progress.fraction : 0" in face_text:
+            fail("Watch docking ProgressView must omit the bar when total is unknown")
+        if "progress.knownFraction" not in face_text:
+            fail("Watch docking row must use knownFraction")
     docking = shannon_root / "Packages/ShannonCore/Sources/ShannonCore/DockingProgress.swift"
-    if docking.is_file() and "percentLabel" not in docking.read_text(encoding="utf-8"):
-        fail("DockingProgress must expose percentLabel that fails closed on zero total")
+    if docking.is_file():
+        docking_text = docking.read_text(encoding="utf-8")
+        if "percentLabel" not in docking_text:
+            fail("DockingProgress must expose percentLabel that fails closed on zero total")
+        if "var knownFraction: Double?" not in docking_text:
+            fail("DockingProgress must expose knownFraction so glances can omit unknown bars")
     pad_dock = shannon_root / "iPad/Sources/ShannonPad/Views/DockingProgressView.swift"
     if pad_dock.is_file() and 'Int(fraction * 100)' in pad_dock.read_text(encoding="utf-8"):
         fail("iPad docking ring must use percentLabel, not raw *100")
@@ -383,10 +395,12 @@ def test_design_system_and_tokens() -> None:
     if phone_home.is_file() and "max(fraction, 0.001)" in phone_home.read_text(encoding="utf-8"):
         fail("phone docking ring must not paint a fake 0.1% sliver")
     complication = shannon_root / "watchOS/Sources/ShannonWatchComplication/ShannonComplication.swift"
-    if complication.is_file() and 'String(format: "H %.2f"' in complication.read_text(
-        encoding="utf-8"
-    ):
-        fail("Watch complication entropy must use entropyLabel")
+    if complication.is_file():
+        complication_text = complication.read_text(encoding="utf-8")
+        if 'String(format: "H %.2f"' in complication_text:
+            fail("Watch complication entropy must use entropyLabel")
+        if "Gauge(value: docking.fraction)" in complication_text:
+            fail("Watch complication gauges must use knownFraction, not a 0% track")
     shannon_theme = ROOT.parent / "Packages/ShannonTheme/Sources/ShannonTheme/SemanticColors.swift"
     if shannon_theme.is_file():
         st = shannon_theme.read_text(encoding="utf-8")
