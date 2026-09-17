@@ -285,6 +285,11 @@ def test_design_system_and_tokens() -> None:
     master = ROOT / "design-system/exergy/MASTER.md"
     if not master.is_file():
         fail("design-system/exergy/MASTER.md missing")
+    master_text = master.read_text(encoding="utf-8")
+    if "#C4A359" not in master_text:
+        fail("Exergy MASTER.md must list remaining-gold #C4A359")
+    if "| Accent/CTA | `#22C55E`" in master_text:
+        fail("Exergy MASTER CTA must be gold, not generated green")
     theme = read("Packages/ExergyTheme/Sources/ExergyTheme/ExergyTheme.swift")
     for needle in (
         "0xC4A359",
@@ -354,6 +359,9 @@ def test_design_system_and_tokens() -> None:
         fail("Shannon widget must not invent a 0-capacity gauge")
     if pad_batt.is_file() and "percent ?? 0" in pad_batt.read_text(encoding="utf-8"):
         fail("iPad battery rings must not coerce unknown percent to 0")
+    pad_card = shannon_root / "iPad/Sources/ShannonPad/Views/AgentCardView.swift"
+    if pad_card.is_file() and "ShannonLayout.hitTarget" not in pad_card.read_text(encoding="utf-8"):
+        fail("iPad annotate control must keep a 44pt hit target")
     shannon_theme = ROOT.parent / "Packages/ShannonTheme/Sources/ShannonTheme/SemanticColors.swift"
     if shannon_theme.is_file():
         st = shannon_theme.read_text(encoding="utf-8")

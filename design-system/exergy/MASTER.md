@@ -22,27 +22,22 @@
 | Primary | `#1E293B` | `--color-primary` |
 | On Primary | `#FFFFFF` | `--color-on-primary` |
 | Secondary | `#334155` | `--color-secondary` |
-| Accent/CTA | `#22C55E` | `--color-accent` |
+| Accent/CTA | `#C4A359` | `--color-accent` |
 | Background | `#0F172A` | `--color-background` |
 | Foreground | `#F8FAFC` | `--color-foreground` |
-| Muted | `#272F42` | `--color-muted` |
+| Muted (text) | `#94A3B8` | `--color-muted` |
 | Border | `#475569` | `--color-border` |
 | Destructive | `#EF4444` | `--color-destructive` |
-| Ring | `#1E293B` | `--color-ring` |
+| Ring / leftover | `#C4A359` | `--color-ring` |
 
-**Color Notes:** Code dark + run green
+**Color Notes:** Slate `#0F172A` + remaining-work gold `#C4A359`. Not NATURaL mint, not site tangerine, not retired `#FBBF24` / `#22D3EE`. Generated CTA green `#22C55E` is unused.
 
 ### Typography
 
-- **Heading Font:** Inter
-- **Body Font:** Inter
-- **Mood:** dark, cinematic, technical, precision, clean, premium, developer, professional, high-end utility
-- **Google Fonts:** [Inter + Inter](https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap)
-
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-```
+- **Heading Font:** SF Pro (Inter maps here; do not ship Google Fonts in the apps)
+- **Body Font:** SF Pro
+- **Metrics:** SF Mono
+- **Mood:** dark, cinematic, technical, precision, clean, premium, remaining-first utility
 
 ### Spacing Variables
 
@@ -76,7 +71,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #22C55E;
+  background: #C4A359;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
