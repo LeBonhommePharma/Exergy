@@ -392,6 +392,20 @@ def test_design_system_and_tokens() -> None:
             fail("entropy fluid rail must not paint a 3pt sliver when H is absent")
         if "if fillWidth > 0" not in pill_text:
             fail("entropy fluid rail must omit fill when width is 0")
+        if "CGFloat(run.fraction)" in pill_text:
+            fail("menu-bar FlexAID ring must use knownFraction, not a 0% track")
+        if "run.knownFraction" not in pill_text:
+            fail("Pill FlexAID ring must omit fill when benchmark total is unknown")
+    bench = shannon_root / "Pill/Sources/PillCore/BenchmarkRun.swift"
+    if bench.is_file() and "var knownFraction: Double?" not in bench.read_text(encoding="utf-8"):
+        fail("BenchmarkRunSnapshot must expose knownFraction so hub rings omit unknown totals")
+    popover = shannon_root / "Pill/Sources/ShannonPill/MenuBarPopoverView.swift"
+    if popover.is_file():
+        pop_text = popover.read_text(encoding="utf-8")
+        if "CGFloat(run.fraction)" in pop_text:
+            fail("menu-bar popover FlexAID ring must use knownFraction, not a 0% track")
+        if "run.knownFraction" not in pop_text:
+            fail("popover FlexAID ring must omit fill when benchmark total is unknown")
     entropy_src = shannon_root / "Pill/Sources/PillCore/EntropyReading.swift"
     if entropy_src.is_file():
         entropy_text = entropy_src.read_text(encoding="utf-8")
