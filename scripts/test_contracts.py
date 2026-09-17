@@ -366,6 +366,8 @@ def test_design_system_and_tokens() -> None:
         fail("Shannon widget must not invent a 0-capacity gauge")
     if widget.is_file() and "Gauge(value: docking.fraction)" in widget.read_text(encoding="utf-8"):
         fail("Shannon widget circular gauge must use knownFraction, not a 0% track")
+    if widget.is_file() and "docking.knownFraction, fraction > 0" not in widget.read_text(encoding="utf-8"):
+        fail("Shannon widget circular gauge must omit fill at 0%")
     if widget.is_file() and "max(fraction, 0.001)" in widget.read_text(encoding="utf-8"):
         fail("Shannon widget ring must not paint a fake 0.1% sliver")
     if widget.is_file() and "fallback: Self.placeholder" in widget.read_text(encoding="utf-8"):
@@ -469,6 +471,8 @@ def test_design_system_and_tokens() -> None:
             fail("Watch docking ProgressView must omit the bar when total is unknown")
         if "progress.knownFraction" not in face_text:
             fail("Watch docking row must use knownFraction")
+        if "progress.knownFraction, fraction > 0" not in face_text:
+            fail("Watch docking ProgressView must omit fill at 0%")
         if "count unknown" not in face_text:
             fail("Watch docking a11y must say count unknown when the total is missing")
     docking = shannon_root / "Packages/ShannonCore/Sources/ShannonCore/DockingProgress.swift"
@@ -574,6 +578,8 @@ def test_design_system_and_tokens() -> None:
             fail("Watch complication entropy must use entropyLabel")
         if "Gauge(value: docking.fraction)" in complication_text:
             fail("Watch complication gauges must use knownFraction, not a 0% track")
+        if "docking.knownFraction, fraction > 0" not in complication_text:
+            fail("Watch complication docking gauges must omit fill at 0%")
         if "entropy.isFinite, entropy > 0" not in complication_text:
             fail("Watch complication entropy gauge must omit fill at H=0")
     shannon_theme = ROOT.parent / "Packages/ShannonTheme/Sources/ShannonTheme/SemanticColors.swift"
