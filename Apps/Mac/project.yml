@@ -1,0 +1,85 @@
+# macOS menu-bar + window Exergy.
+#
+#     cd Exergy/Apps/Mac && rm -rf ExergyMac.xcodeproj && xcodegen generate
+
+name: ExergyMac
+options:
+  bundleIdPrefix: com.lebonhommepharma.exergy
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+packages:
+  ExergyCore:
+    path: ../../Packages/ExergyCore
+  ExergyTheme:
+    path: ../../Packages/ExergyTheme
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    GENERATE_INFOPLIST_FILE: YES
+    SWIFT_STRICT_CONCURRENCY: complete
+    COMBINE_HIDPI_IMAGES: YES
+    INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+
+targets:
+  ExergyMac:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+      - path: ../Shared
+        excludes:
+          - ExergyWidgetEntry.swift
+          - WatchDial.swift
+      - path: Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
+      - path: Resources/Assets.xcassets
+        buildPhase: resources
+    dependencies:
+      - package: ExergyCore
+      - package: ExergyTheme
+    info:
+      path: Resources/GeneratedInfo.plist
+      properties:
+        CFBundleDisplayName: Exergy
+        CFBundleName: Exergy
+        LSMinimumSystemVersion: "14.0"
+        LSUIElement: true
+        CFBundleURLTypes:
+          - CFBundleURLName: com.lebonhommepharma.exergy.mac
+            CFBundleURLSchemes:
+              - exergy
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: false
+    entitlements:
+      path: Resources/ExergyMac.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.lebonhommepharma.exergy
+        com.apple.developer.icloud-services:
+          - CloudKit
+        com.apple.security.application-groups:
+          - group.com.lebonhommepharma.exergy
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.lebonhommepharma.exergy
+        com.apple.security.files.user-selected.read-only: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lebonhommepharma.exergy.mac
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+
+schemes:
+  ExergyMac:
+    build:
+      targets:
+        ExergyMac: all
+    run:
+      config: Debug

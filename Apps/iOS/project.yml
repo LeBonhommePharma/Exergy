@@ -1,0 +1,199 @@
+# XcodeGen spec for Exergy on iPhone, widget, and embedded Watch.
+#
+#     cd Exergy/Apps/iOS && rm -rf Exergy.xcodeproj && xcodegen generate
+#
+# DEVELOPMENT_TEAM is blank for unsigned Simulator builds. Set ZJLX84G8QV in Xcode.
+
+name: Exergy
+options:
+  bundleIdPrefix: com.lebonhommepharma.exergy
+  deploymentTarget:
+    iOS: "17.0"
+    watchOS: "10.0"
+  createIntermediateGroups: true
+
+packages:
+  ExergyCore:
+    path: ../../Packages/ExergyCore
+  ExergyTheme:
+    path: ../../Packages/ExergyTheme
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    GENERATE_INFOPLIST_FILE: YES
+    SWIFT_STRICT_CONCURRENCY: complete
+    INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+
+targets:
+  ExergyPhone:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+        excludes:
+          - Widget
+      - path: ../Shared
+        excludes:
+          - ExergyWidgetEntry.swift
+      - path: Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
+      - path: Resources/Assets.xcassets
+        buildPhase: resources
+    dependencies:
+      - package: ExergyCore
+      - package: ExergyTheme
+      - target: ExergyWidget
+        embed: true
+      - target: ExergyWatch
+        embed: true
+    info:
+      path: Resources/GeneratedInfo.plist
+      properties:
+        CFBundleDisplayName: Exergy
+        CFBundleURLTypes:
+          - CFBundleURLName: com.lebonhommepharma.exergy
+            CFBundleURLSchemes:
+              - exergy
+        UILaunchScreen: {}
+        UIBackgroundModes:
+          - remote-notification
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: false
+    entitlements:
+      path: Resources/ExergyPhone.entitlements
+      properties:
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.lebonhommepharma.exergy
+        com.apple.developer.icloud-services:
+          - CloudKit
+        com.apple.security.application-groups:
+          - group.com.lebonhommepharma.exergy
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.lebonhommepharma.exergy
+        aps-environment: development
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lebonhommepharma.exergy
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+
+  ExergyWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Sources/Widget
+      - path: ../Shared/ExergyWidgetEntry.swift
+      - path: ../Shared/WatchDial.swift
+      - path: Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
+    dependencies:
+      - package: ExergyCore
+      - package: ExergyTheme
+    info:
+      path: Resources/GeneratedWidgetInfo.plist
+      properties:
+        CFBundleDisplayName: Exergy
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: false
+    entitlements:
+      path: Resources/ExergyWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.lebonhommepharma.exergy
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lebonhommepharma.exergy.widget
+
+  ExergyWatch:
+    type: application
+    platform: watchOS
+    sources:
+      - path: ../../watchOS/Sources/ExergyWatchApp.swift
+      - path: ../../Shared/ExergyAppModel.swift
+      - path: ../../Shared/WatchDial.swift
+      - path: ../../watchOS/Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
+      - path: ../../watchOS/Resources/Assets.xcassets
+        buildPhase: resources
+    dependencies:
+      - package: ExergyCore
+      - package: ExergyTheme
+      - target: ExergyComplication
+        embed: true
+    info:
+      path: ../../watchOS/Resources/GeneratedInfo.plist
+      properties:
+        CFBundleDisplayName: Exergy
+        WKApplication: true
+        WKCompanionAppBundleIdentifier: com.lebonhommepharma.exergy
+        WKRunsIndependentlyOfCompanionApp: true
+        WKBackgroundModes:
+          - app-refresh
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: false
+    entitlements:
+      path: ../../watchOS/Resources/ExergyWatch.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.lebonhommepharma.exergy
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.lebonhommepharma.exergy
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.lebonhommepharma.exergy
+        com.apple.developer.icloud-services:
+          - CloudKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lebonhommepharma.exergy.watchkitapp
+        TARGETED_DEVICE_FAMILY: "4"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+
+  ExergyComplication:
+    type: app-extension
+    platform: watchOS
+    sources:
+      - path: ../../watchOS/Sources/ExergyWatchComplication.swift
+      - path: ../../Shared/ExergyWidgetEntry.swift
+      - path: ../../Shared/WatchDial.swift
+      - path: ../../watchOS/Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
+    dependencies:
+      - package: ExergyCore
+      - package: ExergyTheme
+    info:
+      path: ../../watchOS/Resources/GeneratedComplicationInfo.plist
+      properties:
+        CFBundleDisplayName: Exergy
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: false
+    entitlements:
+      path: ../../watchOS/Resources/ExergyComplication.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.lebonhommepharma.exergy
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lebonhommepharma.exergy.watchkitapp.complication
+
+schemes:
+  ExergyPhone:
+    build:
+      targets:
+        ExergyPhone: all
+    run:
+      config: Debug
+  ExergyWatch:
+    build:
+      targets:
+        ExergyWatch: all
+    run:
+      config: Debug
