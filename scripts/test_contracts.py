@@ -381,6 +381,10 @@ def test_design_system_and_tokens() -> None:
             fail("menu-bar load bar must not paint a 3pt sliver when percent is 0 or unknown")
         if "isPlaceholder ? 0" not in bar_text:
             fail("unknown menu-bar load must use width 0, not a dim 0% fill")
+        if "max(2, maxHeight *" in bar_text:
+            fail("idle cores must not paint a 2pt load stub")
+        if "if h > 0" not in bar_text:
+            fail("core bars must omit fill at 0% load")
     pill_rail = shannon_root / "Pill/Sources/ShannonPill/PillView.swift"
     if pill_rail.is_file():
         pill_text = pill_rail.read_text(encoding="utf-8")
