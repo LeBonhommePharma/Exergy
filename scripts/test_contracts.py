@@ -406,6 +406,17 @@ def test_design_system_and_tokens() -> None:
             fail("thermal HUD must dash unknown pressure, not ?")
         if 'thermal?.label ?? "—"' not in bar_text:
             fail("thermal HUD must use — when the pressure label is missing")
+    glyph = shannon_root / "Pill/Sources/PillCore/SystemResources.swift"
+    if glyph.is_file():
+        glyph_text = glyph.read_text(encoding="utf-8")
+        if "max(0.06, fraction)" in glyph_text:
+            fail("menu-bar core glyph must not floor idle bars to 6%")
+        if "max(1, maxH *" in glyph_text:
+            fail("menu-bar core glyph must not paint a 1pt idle stub")
+        if "values = [0]" in glyph_text:
+            fail("unknown menu-bar glyph must stay empty, not a 0% stub")
+        if "guard h > 0 else { continue }" not in glyph_text:
+            fail("menu-bar core glyph must omit fill at 0% load")
     pill_rail = shannon_root / "Pill/Sources/ShannonPill/PillView.swift"
     if pill_rail.is_file():
         pill_text = pill_rail.read_text(encoding="utf-8")
