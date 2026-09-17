@@ -406,6 +406,10 @@ def test_design_system_and_tokens() -> None:
             fail("thermal HUD must dash unknown pressure, not ?")
         if 'thermal?.label ?? "—"' not in bar_text:
             fail("thermal HUD must use — when the pressure label is missing")
+        if 'detail == "n/a" ? "—" : "…"' in bar_text:
+            fail("unknown thermal percent must dash, not show a loading ellipsis")
+        if 'detail == "n/a" || kind == .thermal' not in bar_text:
+            fail("thermal unknown percent must dash like an absent sensor")
     glyph = shannon_root / "Pill/Sources/PillCore/SystemResources.swift"
     if glyph.is_file():
         glyph_text = glyph.read_text(encoding="utf-8")
