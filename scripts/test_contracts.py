@@ -370,10 +370,18 @@ def test_design_system_and_tokens() -> None:
         fail("Shannon widget ring must not paint a fake 0.1% sliver")
     if widget.is_file() and "fallback: Self.placeholder" in widget.read_text(encoding="utf-8"):
         fail("Shannon widget snapshot must not invent gallery docking on cache miss")
+    if widget.is_file() and "if fraction != nil" in widget.read_text(encoding="utf-8"):
+        fail("Shannon widget ring must omit fill when trim is 0")
+    if widget.is_file() and "if trim > 0" not in widget.read_text(encoding="utf-8"):
+        fail("Shannon widget ring must omit round-cap fill at 0%")
     if pad_batt.is_file() and "percent ?? 0" in pad_batt.read_text(encoding="utf-8"):
         fail("iPad battery rings must not coerce unknown percent to 0")
     if pad_batt.is_file() and "max(fraction, 0.001)" in pad_batt.read_text(encoding="utf-8"):
         fail("iPad battery rings must not paint a fake 0.1% sliver")
+    if pad_batt.is_file() and "if percent != nil" in pad_batt.read_text(encoding="utf-8"):
+        fail("iPad battery rings must omit fill at 0%")
+    if pad_batt.is_file() and "if fraction > 0" not in pad_batt.read_text(encoding="utf-8"):
+        fail("iPad battery rings must omit round-cap fill at 0%")
     host_cap = shannon_root / "Packages/ShannonCore/Sources/ShannonCore/HostCapacityViews.swift"
     if host_cap.is_file():
         host_text = host_cap.read_text(encoding="utf-8")
@@ -381,6 +389,8 @@ def test_design_system_and_tokens() -> None:
             fail("host capacity gauges must use Shannon mint/violet/warning/error, not system green/orange")
         if "max(3, geo.size.width" in host_text:
             fail("host capacity gauges must not paint a 3pt sliver at 0%")
+        if "if w > 0" not in host_text:
+            fail("host capacity gauges must omit fill at 0% load")
     load_bar = shannon_root / "Pill/Sources/ShannonPill/MenuBarResourcesSection.swift"
     if load_bar.is_file():
         bar_text = load_bar.read_text(encoding="utf-8")
@@ -403,6 +413,8 @@ def test_design_system_and_tokens() -> None:
             fail("menu-bar FlexAID ring must use knownFraction, not a 0% track")
         if "run.knownFraction" not in pill_text:
             fail("Pill FlexAID ring must omit fill when benchmark total is unknown")
+        if "if snapshot.fillFraction > 0" not in pill_text:
+            fail("menu-bar battery ring must omit fill at 0%")
     bench = shannon_root / "Pill/Sources/PillCore/BenchmarkRun.swift"
     if bench.is_file() and "var knownFraction: Double?" not in bench.read_text(encoding="utf-8"):
         fail("BenchmarkRunSnapshot must expose knownFraction so hub rings omit unknown totals")
@@ -458,9 +470,17 @@ def test_design_system_and_tokens() -> None:
     pad_dock = shannon_root / "iPad/Sources/ShannonPad/Views/DockingProgressView.swift"
     if pad_dock.is_file() and 'Int(fraction * 100)' in pad_dock.read_text(encoding="utf-8"):
         fail("iPad docking ring must use percentLabel, not raw *100")
+    if pad_dock.is_file() and "if fraction != nil" in pad_dock.read_text(encoding="utf-8"):
+        fail("iPad docking ring must omit fill when trim is 0")
+    if pad_dock.is_file() and "if trim > 0" not in pad_dock.read_text(encoding="utf-8"):
+        fail("iPad docking ring must omit round-cap fill at 0%")
     phone_home = shannon_root / "iOS/Sources/ShannonPhone/HomeView.swift"
     if phone_home.is_file() and "max(fraction, 0.001)" in phone_home.read_text(encoding="utf-8"):
         fail("phone docking ring must not paint a fake 0.1% sliver")
+    if phone_home.is_file() and "if fraction != nil" in phone_home.read_text(encoding="utf-8"):
+        fail("phone docking ring must omit fill when trim is 0")
+    if phone_home.is_file() and "if trim > 0" not in phone_home.read_text(encoding="utf-8"):
+        fail("phone docking ring must omit round-cap fill at 0%")
     complication = shannon_root / "watchOS/Sources/ShannonWatchComplication/ShannonComplication.swift"
     if complication.is_file():
         complication_text = complication.read_text(encoding="utf-8")
