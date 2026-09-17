@@ -187,6 +187,19 @@ final class CloudRoundtripTests: XCTestCase {
         XCTAssertEqual(try original.reencoded(), original)
     }
 
+    func testGlanceRingCodableWithPace() throws {
+        let payload = DemoCatalog.snapshot().glance
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let data = try encoder.encode(payload)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let again = try decoder.decode(ExergyGlancePayload.self, from: data)
+        XCTAssertEqual(again.rings.count, payload.rings.count)
+        XCTAssertEqual(again.rings.first?.pace, payload.rings.first?.pace)
+        XCTAssertNotNil(again.combinedChip)
+    }
+
     func testIntDoubleWidening() throws {
         let fields: CloudFields = [
             CloudKeys.accountID: .string(UUID().uuidString),

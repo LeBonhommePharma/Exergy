@@ -1,7 +1,7 @@
 import Foundation
 
 /// Pace of spend against a quota window. Usage itself is never invented.
-public enum PaceState: String, Sendable, Equatable, CaseIterable {
+public enum PaceState: String, Sendable, Equatable, CaseIterable, Codable {
     case unknown
     case behind
     case onPace
@@ -18,7 +18,7 @@ public enum PaceState: String, Sendable, Equatable, CaseIterable {
 }
 
 /// Remaining-work band. Color is never the only cue — pair with ``copy``.
-public enum RemainingBand: String, Sendable, Equatable, CaseIterable {
+public enum RemainingBand: String, Sendable, Equatable, CaseIterable, Codable {
     case unknown
     case plentiful
     case watch
