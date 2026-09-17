@@ -38,15 +38,23 @@ struct WatchRootView: View {
                             .font(.caption2)
                             .foregroundStyle(Color.exergyInk)
                     } else {
+                        Text("—")
+                            .font(.system(.title, design: .default).weight(.semibold).monospacedDigit())
+                            .foregroundStyle(Color.exergyMute)
+                            .minimumScaleFactor(0.7)
                         Text(ExergyCopy.unknown.resolved)
                             .font(.caption2)
                             .foregroundStyle(Color.exergyMute)
                     }
-                    ForEach(focus) { account in
-                        WatchAccountRow(
-                            account: account,
-                            usage: model.snapshot.usage(for: account.id)
-                        )
+                    if focus.isEmpty {
+                        ExergyEmptyState(showsAddHint: false)
+                    } else {
+                        ForEach(focus) { account in
+                            WatchAccountRow(
+                                account: account,
+                                usage: model.snapshot.usage(for: account.id)
+                            )
+                        }
                     }
                 }
                 .padding(.horizontal, ExergySpacing.sm)
@@ -86,7 +94,9 @@ struct WatchAccountRow: View {
                 .foregroundStyle(Color.exergyRemaining(band))
         }
         .padding(.vertical, ExergySpacing.xs)
+        .frame(minHeight: ExergyIconSize.hit)
+        .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(account.displayTitle), \(remaining.map { "\(Int($0.rounded()))" } ?? ExergyCopy.unknown.resolved)")
+        .accessibilityLabel("\(account.displayTitle), \(remaining.map { "\(Int($0.rounded())) percent \(ExergyCopy.remaining.resolved.lowercased())" } ?? ExergyCopy.unknown.resolved), \(band.copy.resolved)")
     }
 }

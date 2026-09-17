@@ -20,6 +20,13 @@ public struct UsageHomeView: View {
             VStack(alignment: .leading, spacing: compact ? ExergySpacing.md : ExergySpacing.lg) {
                 if showsProductHeader {
                     header
+                } else if let chip = model.snapshot.glance.combinedChip {
+                    Text(chip)
+                        .font(ExergyType.headline)
+                        .foregroundStyle(Color.exergyGold)
+                        .minimumScaleFactor(0.7)
+                        .lineLimit(2)
+                        .accessibilityLabel(chip)
                 }
                 focusRow(focus, compact: compact)
                 accountList(accounts)
@@ -75,26 +82,30 @@ public struct UsageHomeView: View {
         .accessibilityElement(children: .combine)
     }
 
+    @ViewBuilder
+    private func meter(for account: ExergyAccount, compact: Bool) -> some View {
+        if model.snapshot.usage(for: account.id) == nil {
+            ExergyLoadingSkeleton()
+        } else {
+            FocusMeterCard(
+                account: account,
+                usage: model.snapshot.usage(for: account.id),
+                now: model.snapshot.generatedAt,
+                compact: compact
+            )
+        }
+    }
+
     private func focusRow(_ accounts: [ExergyAccount], compact: Bool) -> some View {
         ViewThatFits(in: .horizontal) {
             HStack(alignment: .top, spacing: ExergySpacing.sm) {
                 ForEach(accounts) { account in
-                    FocusMeterCard(
-                        account: account,
-                        usage: model.snapshot.usage(for: account.id),
-                        now: model.snapshot.generatedAt,
-                        compact: compact
-                    )
+                    meter(for: account, compact: compact)
                 }
             }
             VStack(spacing: ExergySpacing.sm) {
                 ForEach(accounts) { account in
-                    FocusMeterCard(
-                        account: account,
-                        usage: model.snapshot.usage(for: account.id),
-                        now: model.snapshot.generatedAt,
-                        compact: compact
-                    )
+                    meter(for: account, compact: compact)
                 }
             }
         }
@@ -131,50 +142,77 @@ public struct AddAccountView: View {
     public var body: some View {
         let provider = model.addingProvider ?? .claude
         Form {
-            Picker(selection: Binding(
-                get: { model.addingProvider ?? .claude },
-                set: { model.addingProvider = $0 }
-            )) {
-                ForEach(ProviderKind.allCases, id: \.self) { kind in
-                    Text(kind.displayName).tag(kind)
+            Section {
+                Picker(selection: Binding(
+                    get: { model.addingProvider ?? .claude },
+                    set: { model.addingProvider = $0 }
+                )) {
+                    ForEach(ProviderKind.allCases, id: \.self) { kind in
+                        Text(kind.displayName).tag(kind)
+                    }
+                } label: {
+                    ExergySymbolLabel(ExergyCopy.provider.resolved, symbol: .accounts)
                 }
-            } label: {
-                ExergySymbolLabel(ExergyCopy.provider.resolved, symbol: .accounts)
+                .frame(minHeight: ExergyIconSize.hit)
+
+                LabeledContent(ExergyCopy.nickname.resolved) {
+                    TextField("", text: $model.draftLabel, prompt: Text(ExergyCopy.nickname.resolved))
+                        #if os(iOS)
+                        .textContentType(.nickname)
+                        #endif
+                }
+                .frame(minHeight: ExergyIconSize.hit)
             }
-            TextField(ExergyCopy.nickname.resolved, text: $model.draftLabel)
-                #if os(iOS)
-                .textContentType(.nickname)
-                #endif
+
             if provider.supportsAPIKey {
-                SecureField(ExergyCopy.pasteAPIKey.resolved, text: $model.draftAPIKey)
-                ExergyPrimaryButton(
-                    ExergyCopy.saveKey.resolved,
-                    enabled: !model.draftAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                ) {
-                    Task { try? await model.addAccount(provider: provider, method: .apiKey) }
+                Section {
+                    LabeledContent(ExergyCopy.pasteAPIKey.resolved) {
+                        SecureField("", text: $model.draftAPIKey, prompt: Text(ExergyCopy.pasteAPIKey.resolved))
+                    }
+                    .frame(minHeight: ExergyIconSize.hit)
+                    ExergyPrimaryButton(
+                        ExergyCopy.saveKey.resolved,
+                        enabled: !model.draftAPIKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    ) {
+                        Task { try? await model.addAccount(provider: provider, method: .apiKey) }
+                    }
+                } footer: {
+                    Text(ExergyCopy.secretsStayHere.resolved)
                 }
             }
             if provider.supportsOAuth {
-                Text(ExergyCopy.connectWithOAuth.resolved)
-                    .foregroundStyle(Color.exergyInk)
-                Text(ExergyCopy.oauthUnavailable.resolved)
-                    .font(ExergyType.caption)
-                    .foregroundStyle(Color.exergyMute)
+                Section {
+                    Text(ExergyCopy.connectWithOAuth.resolved)
+                        .foregroundStyle(Color.exergyInk)
+                    Text(ExergyCopy.oauthUnavailable.resolved)
+                        .font(ExergyType.caption)
+                        .foregroundStyle(Color.exergyMute)
+                }
             }
             if provider == .manual {
-                ExergyPrimaryButton(ExergyCopy.addAccount.resolved) {
-                    Task { try? await model.addAccount(provider: .manual, method: .manual) }
+                Section {
+                    ExergyPrimaryButton(ExergyCopy.addAccount.resolved) {
+                        Task { try? await model.addAccount(provider: .manual, method: .manual) }
+                    }
                 }
             }
             if let error = model.formError {
-                Text(error)
-                    .font(ExergyType.caption)
-                    .foregroundStyle(Color.exergyDestructive)
-                    .accessibilityLabel(error)
+                Section {
+                    Label(error, systemImage: "exclamationmark.triangle")
+                        .font(ExergyType.caption)
+                        .foregroundStyle(Color.exergyDestructive)
+                        .symbolRenderingMode(.hierarchical)
+                        .accessibilityLabel(error)
+                        .accessibilityAddTraits(.isStaticText)
+                }
             }
-            Text(ExergyCopy.secretsStayHere.resolved)
-                .font(ExergyType.caption)
-                .foregroundStyle(Color.exergyMute)
+            if !provider.supportsAPIKey {
+                Section {
+                    Text(ExergyCopy.secretsStayHere.resolved)
+                        .font(ExergyType.caption)
+                        .foregroundStyle(Color.exergyMute)
+                }
+            }
         }
         .navigationTitle(ExergyCopy.addAccount.resolved)
         .tint(Color.exergyGold)
@@ -201,6 +239,7 @@ public struct SettingsView: View {
             )) {
                 ExergySymbolLabel(ExergyCopy.demoMode.resolved, symbol: .usage)
             }
+            .frame(minHeight: ExergyIconSize.hit)
             Text(ExergyCopy.demoModeHint.resolved)
                 .font(ExergyType.caption)
                 .foregroundStyle(Color.exergyMute)
@@ -210,10 +249,12 @@ public struct SettingsView: View {
             )) {
                 ExergySymbolLabel(ExergyCopy.iCloudOn.resolved, symbol: .icloud)
             }
+            .frame(minHeight: ExergyIconSize.hit)
             if showsHUDToggle {
                 Toggle(isOn: $showHUD) {
                     ExergySymbolLabel(ExergyCopy.floatingHUD.resolved, symbol: .hud)
                 }
+                .frame(minHeight: ExergyIconSize.hit)
                 Text(ExergyCopy.floatingHUDHint.resolved)
                     .font(ExergyType.caption)
                     .foregroundStyle(Color.exergyMute)

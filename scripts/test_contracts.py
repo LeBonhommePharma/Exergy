@@ -309,12 +309,61 @@ def test_design_system_and_tokens() -> None:
     phone = read("Apps/iOS/Sources/ExergyPhoneApp.swift")
     if "TabView" not in phone:
         fail("iPhone shell must use TabView")
+    if phone.count("tabItem") < 3:
+        fail("iPhone tabs must keep labels (Usage / Add / Settings)")
     pad = read("Apps/iPad/Sources/ExergyPadApp.swift")
     if "NavigationSplitView" not in pad:
         fail("iPad shell must use NavigationSplitView")
     mac = read("Apps/Mac/Sources/ExergyMacApp.swift")
     if "MacGlanceHUD" not in mac or "MenuBarExtra" not in mac:
         fail("Mac shell must keep MenuBarExtra and floating HUD")
+    if "ExergyRingGeometry.remainingTrim" not in theme:
+        fail("focus rings must fill remaining work, not used spend")
+    if "ExergyPressStyle" not in read("Packages/ExergyTheme/Sources/ExergyTheme/ExergyControls.swift"):
+        fail("buttons must use ExergyPressStyle (Reduce Motion aware)")
+    if "ExergyLoadingSkeleton" not in read("Packages/ExergyTheme/Sources/ExergyTheme/ExergyControls.swift"):
+        fail("empty remaining meters need a loading skeleton that never paints 0%")
+    if "LabeledContent" not in read("Apps/Shared/UsageHomeView.swift"):
+        fail("add-account form must use visible labels, not placeholder-only")
+    if "minHeight: ExergyIconSize.hit" not in read("Apps/watchOS/Sources/ExergyWatchApp.swift"):
+        fail("Watch account rows must keep 44pt hits")
+    if '?? "—"' not in read("Apps/Shared/WatchDial.swift"):
+        fail("Watch dial must render em-dash when remaining is unknown")
+    if "emptyAction" not in read("Packages/ExergyCore/Sources/ExergyCore/L10n.swift"):
+        fail("empty state must name a next action")
+    if "ExergyPressStyle" not in mac:
+        fail("Mac menu-bar links must use ExergyPressStyle")
+    if "remaining ?? 0" in read("Packages/ExergyTheme/Sources/ExergyTheme/QuotaViews.swift"):
+        fail("menu-bar remaining marks must not invent 0% height")
+    if "ExergyLoadingSkeleton" not in read("Apps/Shared/UsageHomeView.swift"):
+        fail("unknown account usage must show ExergyLoadingSkeleton, not a 0% ring")
+    if 'Text("—")' not in read("Apps/watchOS/Sources/ExergyWatchApp.swift"):
+        fail("Watch remaining numeral must be an em-dash when unknown")
+    shannon_root = ROOT.parent
+    phone = shannon_root / "iOS/Sources/ShannonPhone/HomeView.swift"
+    watch = shannon_root / "watchOS/Sources/ShannonWatch/WatchRootView.swift"
+    widget = shannon_root / "iOS/Sources/ShannonWidget/ShannonWidget.swift"
+    pad_batt = shannon_root / "iPad/Sources/ShannonPad/Views/StatusCardsView.swift"
+    if phone.is_file() and "accessibilityReduceMotion" not in phone.read_text(encoding="utf-8"):
+        fail("Shannon press style must honor Reduce Motion")
+    if phone.is_file() and 'title: media.isPlaying ? "Pause" : "Play"' not in phone.read_text(encoding="utf-8"):
+        fail("phone transport controls must keep visible accessibility labels")
+    if watch.is_file() and ".labelStyle(.iconOnly)" in watch.read_text(encoding="utf-8"):
+        fail("Watch gate Approve/Deny must show titles, not icon-only")
+    if widget.is_file() and "Gauge(value: 0)" in widget.read_text(encoding="utf-8"):
+        fail("Shannon widget must not invent a 0-capacity gauge")
+    if pad_batt.is_file() and "percent ?? 0" in pad_batt.read_text(encoding="utf-8"):
+        fail("iPad battery rings must not coerce unknown percent to 0")
+    shannon_theme = ROOT.parent / "Packages/ShannonTheme/Sources/ShannonTheme/SemanticColors.swift"
+    if shannon_theme.is_file():
+        st = shannon_theme.read_text(encoding="utf-8")
+        if "0x508CFF" in st:
+            fail("Shannon separators must not use leftover electric-blue chrome")
+        if "0x45E0A8" not in st or "0x8B5CF6" not in st:
+            fail("Shannon accent/entropy tokens must stay mint/violet")
+    agent = ROOT.parent / "Packages/ShannonCore/Sources/ShannonCore/AgentState.swift"
+    if agent.is_file() and "var systemImage: String" not in agent.read_text(encoding="utf-8"):
+        fail("AgentActivity must expose SF Symbol systemImage for Watch chrome")
 
 
 def _decode_plan_glance(raw: bytes) -> dict | None:

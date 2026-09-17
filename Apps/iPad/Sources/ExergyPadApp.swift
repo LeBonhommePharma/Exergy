@@ -40,18 +40,22 @@ struct ExergyPadApp: App {
                 .navigationTitle(ExergyIdentity.localizedName)
                 .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 320)
             } detail: {
-                Group {
-                    switch route ?? .usage {
-                    case .usage:
-                        UsageHomeView(model: model, surface: .iPad)
-                    case .add:
-                        AddAccountView(model: model)
-                    case .settings:
-                        SettingsView(model: model)
+                NavigationStack {
+                    Group {
+                        switch route ?? .usage {
+                        case .usage:
+                            UsageHomeView(model: model, surface: .iPad)
+                        case .add:
+                            AddAccountView(model: model)
+                        case .settings:
+                            SettingsView(model: model)
+                        }
                     }
+                    .navigationTitle((route ?? .usage).title)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.exergyBackground.ignoresSafeArea())
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.exergyBackground.ignoresSafeArea())
             }
             .tint(Color.exergyGold)
         }

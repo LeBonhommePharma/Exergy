@@ -76,6 +76,8 @@ public enum ExergyCopy: Sendable {
         en: "Add an account. Exergy watches remaining quota and syncs the meters through your iCloud — never the keys.",
         fr: "Ajoutez un compte. Exergie surveille le quota restant et synchronise les jauges via votre iCloud — jamais les clés."
     )
+    public static let emptyAction = LocalizedCopy(en: "Add an account", fr: "Ajouter un compte")
+    public static let loading = LocalizedCopy(en: "Reading remaining quota", fr: "Lecture du quota restant")
     public static let privacy = LocalizedCopy(en: "Privacy", fr: "Confidentialité")
     public static let noServer = LocalizedCopy(
         en: "No Exergy server. No analytics. Apple iCloud is the only sync path, and it is your private database.",

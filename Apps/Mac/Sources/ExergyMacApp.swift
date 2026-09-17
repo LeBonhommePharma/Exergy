@@ -59,6 +59,7 @@ struct PopoverRoot: View {
                     ExergySymbolLabel(ExergyCopy.addAccount.resolved, symbol: .add)
                         .frame(minHeight: ExergyIconSize.hit)
                 }
+                .buttonStyle(ExergyPressStyle())
                 .help(ExergyCopy.addAccount.resolved)
                 Spacer()
                 NavigationLink {
@@ -67,6 +68,7 @@ struct PopoverRoot: View {
                     ExergySymbolLabel(ExergyCopy.settings.resolved, symbol: .settings)
                         .frame(minHeight: ExergyIconSize.hit)
                 }
+                .buttonStyle(ExergyPressStyle())
                 .help(ExergyCopy.settings.resolved)
             }
             .padding(.horizontal, ExergySpacing.md)

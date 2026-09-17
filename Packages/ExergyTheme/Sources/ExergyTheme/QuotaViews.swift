@@ -96,16 +96,16 @@ public struct QuotaBullet: View {
                     ZStack(alignment: .leading) {
                         Capsule()
                             .fill(Color.exergyBorder.opacity(0.45))
-                        if let used {
+                        if let remainingTrim = ExergyRingGeometry.remainingTrim(usedPercent: used) {
                             Capsule()
                                 .fill(Color.exergyRemaining(band))
-                                .frame(width: geo.size.width * CGFloat(min(1, max(0, used / 100))))
+                                .frame(width: geo.size.width * CGFloat(min(1, max(0, remainingTrim))))
                         }
-                        if let expected {
+                        if let expectedTrim = ExergyRingGeometry.remainingTrim(usedPercent: expected) {
                             Capsule()
                                 .fill(Color.exergyInk)
                                 .frame(width: 2, height: 10)
-                                .offset(x: geo.size.width * CGFloat(min(1, max(0, expected / 100))))
+                                .offset(x: geo.size.width * CGFloat(min(1, max(0, expectedTrim))))
                                 .accessibilityHidden(true)
                         }
                     }
@@ -118,6 +118,8 @@ public struct QuotaBullet: View {
                 Text(remaining.map { "\(Int($0.rounded()))%" } ?? "—")
                     .font(ExergyType.mono)
                     .foregroundStyle(Color.exergyRemaining(band))
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
                 Text(band.copy.resolved)
                     .font(.caption2)
                     .foregroundStyle(Color.exergyMute)
@@ -186,7 +188,7 @@ public struct MenuBarRemainingMarks: View {
         HStack(spacing: 3) {
             ForEach(Array(rings), id: \.accountID) { ring in
                 Capsule()
-                    .fill(Color.exergyBrand(ring.accentHex).opacity(0.95))
+                    .fill(markFill(ring.remainingPercent, accentHex: ring.accentHex))
                     .frame(width: 4, height: height(ring.remainingPercent))
                     .accessibilityHidden(true)
             }
@@ -199,8 +201,14 @@ public struct MenuBarRemainingMarks: View {
         #endif
     }
 
+    private func markFill(_ remaining: Double?, accentHex: UInt32) -> Color {
+        guard remaining != nil else { return Color.exergyMute.opacity(0.45) }
+        return Color.exergyBrand(accentHex).opacity(0.95)
+    }
+
+    /// Unknown remaining is a mute stub, never a 0% gold bar.
     private func height(_ remaining: Double?) -> CGFloat {
-        let pct = remaining ?? 0
-        return max(4, 14 * CGFloat(pct / 100))
+        guard let remaining else { return 4 }
+        return max(4, 14 * CGFloat(remaining / 100))
     }
 }

@@ -33,4 +33,30 @@ final class ExergyThemeTests: XCTestCase {
         _ = Color.exergyRemaining(.low)
         _ = Color.exergyRemaining(.unknown)
     }
+
+    func testRemainingFirstGeometry() {
+        let mid = ExergyRingGeometry.remainingTrim(usedPercent: 61)
+        XCTAssertNotNil(mid)
+        XCTAssertEqual(mid!, 0.39, accuracy: 0.0001)
+
+        let empty = ExergyRingGeometry.remainingTrim(usedPercent: 0)
+        XCTAssertNotNil(empty)
+        XCTAssertEqual(empty!, 1.0, accuracy: 0.0001)
+
+        let full = ExergyRingGeometry.remainingTrim(usedPercent: 100)
+        XCTAssertNotNil(full)
+        XCTAssertEqual(full!, 0.0, accuracy: 0.0001)
+
+        XCTAssertNil(ExergyRingGeometry.remainingTrim(usedPercent: nil))
+        XCTAssertNil(ExergyRingGeometry.remainingTrim(usedPercent: .nan))
+        XCTAssertNil(ExergyRingGeometry.remainingTrim(usedPercent: .infinity))
+    }
+
+    func testPressStyleDoesNotUsePlain() {
+        XCTAssertEqual(ExergyIconSize.hit, 44)
+        XCTAssertEqual(ExergyMotion.short, 0.18, accuracy: 0.001)
+        _ = ExergyType.metric
+        _ = ExergyEmptyState()
+        _ = ExergyLoadingSkeleton()
+    }
 }

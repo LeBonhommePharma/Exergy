@@ -22,13 +22,12 @@ public struct WatchDial: View {
                 )
                 .padding(CGFloat(index) * 10)
             }
-            if let remaining = shown.first?.remainingPercent {
-                Text("\(Int(remaining.rounded()))")
-                    .font(.system(.title3, design: .default).weight(.semibold).monospacedDigit())
-                    .foregroundStyle(Color.exergyInk)
-                    .minimumScaleFactor(0.6)
-                    .accessibilityHidden(true)
-            }
+            Text(shown.first?.remainingPercent.map { "\(Int($0.rounded()))" } ?? "—")
+                .font(.system(.title3, design: .default).weight(.semibold).monospacedDigit())
+                .foregroundStyle(Color.exergyInk)
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+                .accessibilityHidden(true)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibility)

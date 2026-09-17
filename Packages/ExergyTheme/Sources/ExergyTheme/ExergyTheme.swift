@@ -52,6 +52,16 @@ public enum ExergyIconSize {
     public static let hit: CGFloat = 44
 }
 
+/// Remaining-first gauge geometry. Gold fill is leftover work, never spent %.
+public enum ExergyRingGeometry {
+    public static func remainingTrim(usedPercent: Double?) -> Double? {
+        guard let used = usedPercent, let remaining = Metering.remainingPercent(used: used) else {
+            return nil
+        }
+        return remaining / 100
+    }
+}
+
 /// Subtle motion (dial 3). Pair with `accessibilityReduceMotion`.
 public enum ExergyMotion {
     public static let short: Double = 0.18
@@ -86,6 +96,7 @@ public enum ExergyType {
     public static var body: Font { .body }
     public static var caption: Font { .caption }
     public static var mono: Font { .body.monospacedDigit().weight(.medium) }
+    public static var metric: Font { .system(.title, design: .default).weight(.semibold).monospacedDigit() }
 }
 
 public struct ExergyRGBA: Equatable, Sendable {
@@ -207,22 +218,23 @@ public struct ExergyFocusRing: View {
     public var body: some View {
         GeometryReader { geo in
             let size = min(geo.size.width, geo.size.height)
-            let used = (usedPercent ?? 0) / 100
+            let remainingTrim = ExergyRingGeometry.remainingTrim(usedPercent: usedPercent)
+            let expectedRemaining = ExergyRingGeometry.remainingTrim(usedPercent: expectedPercent)
             ZStack {
                 Circle()
                     .stroke(Color.exergyBorder.opacity(0.7), lineWidth: lineWidth)
-                if usedPercent != nil {
+                if let remainingTrim {
                     Circle()
-                        .trim(from: 0, to: used)
+                        .trim(from: 0, to: remainingTrim)
                         .stroke(
                             accent,
                             style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                         )
                         .rotationEffect(.degrees(-90))
-                        .animation(ExergyMotion.animation(reduceMotion: reduceMotion), value: usedPercent)
+                        .animation(ExergyMotion.animation(reduceMotion: reduceMotion), value: remainingTrim)
                 }
-                if showsPaceDot, let expected = expectedPercent {
-                    let angle = Angle.degrees((expected / 100) * 360 - 90)
+                if showsPaceDot, let expectedRemaining {
+                    let angle = Angle.degrees(expectedRemaining * 360 - 90)
                     let radius = size / 2
                     Circle()
                         .fill(Color.exergyInk)
@@ -266,7 +278,7 @@ public struct RemainingNumber: View {
     public var body: some View {
         VStack(spacing: ExergySpacing.xxs) {
             Text(remaining.map { "\(Int($0.rounded()))%" } ?? "—")
-                .font(.system(.title, design: .default).weight(.semibold).monospacedDigit())
+                .font(ExergyType.metric)
                 .foregroundStyle(Color.exergyRemaining(band))
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
