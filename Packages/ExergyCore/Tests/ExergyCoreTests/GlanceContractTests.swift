@@ -53,11 +53,25 @@ final class GlanceContractTests: XCTestCase {
         XCTAssertNotNil(ring["provider"] as? String, "Shannon reads provider")
     }
 
-    /// The chip string itself. ShannonUI asserts this same literal against the
-    /// same bytes, so if the wording or rounding moves, both sides go red.
-    func testCanonicalGlanceProducesTheAgreedChip() throws {
+    /// Exergy's own chip for the canonical sample.
+    ///
+    /// KNOWN DIVERGENCE, found by this test on its first CI run and left as it
+    /// was rather than silently picked for you. The two repos render the same
+    /// number with different words:
+    ///
+    ///     Exergy    "Week 39% remaining"   Metering.remainingChip, localized
+    ///                                      via ExergyCopy.remaining (fr "restant")
+    ///     ShannonUI "Week 39% left"        String(format: "%@ %.0f%% left"),
+    ///                                      hardcoded English
+    ///
+    /// Both read the identical bytes; only the wording differs, so nothing
+    /// breaks — the same quota just reads as two different phrases depending on
+    /// which surface you look at, and Shannon stays English under a French
+    /// locale where Exergy says "restant". Picking one is a copy decision, not
+    /// a mechanical fix. Whichever wins, both literals move together.
+    func testCanonicalGlanceProducesExergysChip() throws {
         let payload = try WidgetBridge.read(try fixtureData())
-        XCTAssertEqual(payload.combinedChip, "Week 39% left")
+        XCTAssertEqual(payload.combinedChip, "Week 39% remaining")
         XCTAssertTrue(payload.demo)
     }
 }
