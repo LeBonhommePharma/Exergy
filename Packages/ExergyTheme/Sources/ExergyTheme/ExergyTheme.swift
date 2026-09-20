@@ -7,25 +7,50 @@ import AppKit
 import UIKit
 #endif
 
-/// Semantic palette from `design-system/exergy/MASTER.md` with the Exergy gold
-/// brand override. Hex lives here only — views use these tokens, never raw RGB.
+/// Palette v2, the values in thebonhomme.com `tokens.css`. Hex lives here only —
+/// views use these tokens, never raw RGB.
+///
+/// This replaced a Tailwind slate ramp plus an invented gold (`0xC4A359`, and a
+/// near-duplicate `0xC4A35A` that had already drifted one digit — which is what
+/// an unowned colour does). Nothing here is chosen by eye: every value is a
+/// token from `tokens.css`, and the ratios in the comments are the measured
+/// ones that file records against its own ground.
 public enum ExergyPalette: Sendable {
-    public static let darkBackground: UInt32 = 0x0F172A
-    public static let lightBackground: UInt32 = 0xF8FAFC
-    public static let darkSurface: UInt32 = 0x1E293B
-    public static let lightSurface: UInt32 = 0xFFFFFF
-    public static let darkInk: UInt32 = 0xF8FAFC
-    public static let lightInk: UInt32 = 0x0F172A
-    public static let darkMute: UInt32 = 0x94A3B8
-    public static let lightMute: UInt32 = 0x475569
-    public static let darkBorder: UInt32 = 0x475569
-    public static let lightBorder: UInt32 = 0xCBD5E1
-    /// Gold chrome (Shannon sibling). MASTER CTA green is not used.
-    public static let goldDark: UInt32 = 0xC4A359
-    public static let goldLight: UInt32 = 0x8A6E2F
-    public static let destructive: UInt32 = 0xEF4444
-    public static let warning: UInt32 = 0xD97706
+    // Surfaces. Indigo ink, never navy.
+    public static let darkBackground: UInt32 = 0x08091A   // --bg
+    public static let lightBackground: UInt32 = 0xF4F6FB  // --bg light
+    public static let darkSurface: UInt32 = 0x111226      // --bg-card, opaque form
+    public static let lightSurface: UInt32 = 0xFFFFFF     // --bg-card light
+
+    // Text.
+    public static let darkInk: UInt32 = 0xE4E3F5          // --fg        15.60:1
+    public static let lightInk: UInt32 = 0x1E293B         // --fg light
+    public static let darkMute: UInt32 = 0x8D8CB0         // --fg-muted   6.12:1
+    public static let lightMute: UInt32 = 0x5A6478        // --fg-muted light
+
+    // Hairlines are --fg-muted washes; tokens.css defines no --border, and the
+    // site's own boundary value is rgba(141, 140, 176, 0.7) — this hex at 0.7.
+    public static let darkBorder: UInt32 = 0x8D8CB0
+    public static let lightBorder: UInt32 = 0x5A6478
+
+    /// Brand accent. Tangerine is ΔG — free energy, the work a system can still
+    /// do. That is literally what Exergy measures, and it is the colour the
+    /// homepage card now carries, so the app and the site agree.
+    public static let accentDark: UInt32 = 0xFF9300       // --tangerine     8.86:1
+    public static let accentLight: UInt32 = 0xA85F00      // --tangerine-fg  4.51:1
+
+    /// Plenty left: mint, ΔH, the family's brand primary.
+    public static let plentifulDark: UInt32 = 0x45E0A8    // --mint         11.73:1
+    public static let plentifulLight: UInt32 = 0x00815C   // --mint-fg       4.52:1
+
+    /// Nearly out. Failure text goes DARKER on a light ground, not lighter:
+    /// #FF6B6B is a dark-mode lift and collapses to 2.57:1 on #f4f6fb.
+    public static let destructiveDark: UInt32 = 0xFF6B6B  // --state-fail-text  7.11:1
+    public static let destructiveLight: UInt32 = 0xBE123C // --state-fail-text  5.81:1
+
     public static let scrimAlpha: Double = 0.5
+    /// The one documented hairline alpha on the site.
+    public static let borderAlpha: Double = 0.7
 }
 
 /// Density 8 dashboard grid (4/8pt). `md` stays 16 so existing padding rhythm holds.
@@ -52,7 +77,7 @@ public enum ExergyIconSize {
     public static let hit: CGFloat = 44
 }
 
-/// Remaining-first gauge geometry. Gold fill is leftover work, never spent %.
+/// Remaining-first gauge geometry. The fill is leftover work, never spent %.
 public enum ExergyRingGeometry {
     public static func remainingTrim(usedPercent: Double?) -> Double? {
         guard let used = usedPercent, let remaining = Metering.remainingPercent(used: used) else {
@@ -160,12 +185,18 @@ public extension Color {
         light: ExergyPalette.lightBorder,
         dark: ExergyPalette.darkBorder
     )
-    static let exergyGold = ExergyAdaptiveColor.make(
-        light: ExergyPalette.goldLight,
-        dark: ExergyPalette.goldDark
+    static let exergyAccent = ExergyAdaptiveColor.make(
+        light: ExergyPalette.accentLight,
+        dark: ExergyPalette.accentDark
     )
-    static let exergyDestructive = ExergyRGBA(hex: ExergyPalette.destructive).color
-    static let exergyWarning = ExergyRGBA(hex: ExergyPalette.warning).color
+    static let exergyPlentiful = ExergyAdaptiveColor.make(
+        light: ExergyPalette.plentifulLight,
+        dark: ExergyPalette.plentifulDark
+    )
+    static let exergyDestructive = ExergyAdaptiveColor.make(
+        light: ExergyPalette.destructiveLight,
+        dark: ExergyPalette.destructiveDark
+    )
     static let exergyScrim = Color.black.opacity(ExergyPalette.scrimAlpha)
 
     static func exergyBrand(_ hex: UInt32) -> Color {
@@ -175,8 +206,8 @@ public extension Color {
     static func exergyRemaining(_ band: RemainingBand) -> Color {
         switch band {
         case .unknown: return .exergyMute
-        case .plentiful: return .exergyGold
-        case .watch: return .exergyWarning
+        case .plentiful: return .exergyPlentiful
+        case .watch: return .exergyAccent
         case .low: return .exergyDestructive
         }
     }

@@ -109,7 +109,7 @@ public struct ExergyPrimaryButton: View {
                 .padding(.vertical, ExergySpacing.compact)
                 .frame(minHeight: ExergyIconSize.hit)
                 .background(
-                    enabled ? Color.exergyGold : Color.exergyMute,
+                    enabled ? Color.exergyAccent : Color.exergyMute,
                     in: RoundedRectangle(cornerRadius: ExergyRadius.sm, style: .continuous)
                 )
         }
@@ -138,7 +138,7 @@ public struct ExergyEmptyState: View {
             if showsAddHint {
                 Label(ExergyCopy.emptyAction.resolved, systemImage: ExergySymbol.add.systemName)
                     .font(ExergyType.caption.weight(.semibold))
-                    .foregroundStyle(Color.exergyGold)
+                    .foregroundStyle(Color.exergyAccent)
                     .symbolRenderingMode(.monochrome)
                     .frame(minHeight: ExergyIconSize.hit, alignment: .leading)
             }

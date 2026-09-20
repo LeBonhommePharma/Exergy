@@ -42,7 +42,7 @@ struct ExergyWidgetView: View {
         return VStack(spacing: ExergySpacing.xs) {
             ExergyFocusRing(
                 usedPercent: ring?.usedPercent,
-                accent: Color.exergyBrand(ring?.accentHex ?? ExergyPalette.goldDark),
+                accent: Color.exergyBrand(ring?.accentHex ?? ExergyPalette.accentDark),
                 lineWidth: 8,
                 showsPaceDot: false
             )
@@ -97,7 +97,7 @@ struct ExergyWidgetView: View {
         HStack {
             Image(systemName: ExergySymbol.usage.systemName)
                 .symbolRenderingMode(.monochrome)
-                .foregroundStyle(Color.exergyGold)
+                .foregroundStyle(Color.exergyAccent)
             Text(entry.payload.combinedChip ?? ExergyCopy.unknown.resolved)
                 .font(.caption2)
                 .foregroundStyle(Color.exergyInk)

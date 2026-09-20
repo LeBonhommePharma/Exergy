@@ -57,7 +57,7 @@ struct ExergyPadApp: App {
                     .background(Color.exergyBackground.ignoresSafeArea())
                 }
             }
-            .tint(Color.exergyGold)
+            .tint(Color.exergyAccent)
         }
     }
 }

@@ -35,7 +35,7 @@ struct ExergyPhoneApp: App {
                 }
                 .tag(2)
             }
-            .tint(Color.exergyGold)
+            .tint(Color.exergyAccent)
             .background(Color.exergyBackground.ignoresSafeArea())
         }
     }

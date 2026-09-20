@@ -27,7 +27,7 @@ struct ExergyMacApp: App {
                     .frame(minWidth: 280)
             }
             .background(Color.exergyBackground)
-            .tint(Color.exergyGold)
+            .tint(Color.exergyAccent)
         }
 
         Window(ExergyCopy.glanceTitle.resolved, id: "exergy-hud") {
@@ -75,7 +75,7 @@ struct PopoverRoot: View {
             .padding(.vertical, ExergySpacing.xs)
         }
         .background(Color.exergyBackground)
-        .tint(Color.exergyGold)
+        .tint(Color.exergyAccent)
         .onAppear(perform: syncHUD)
         .onChange(of: showHUD) { _, _ in syncHUD() }
     }

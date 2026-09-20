@@ -8,12 +8,21 @@ from collections import Counter
 from pathlib import Path
 
 PNG_SIG = b"\x89PNG\r\n\x1a\n"
-# Chrome gold / slate from ExergyPalette. Retired site gold/cyan must not appear.
-GOLD = (0xC4, 0xA3, 0x59)
-SLATE = (0x0F, 0x17, 0x2A)
-TRACK = (0x1E, 0x29, 0x3B)
+# Palette v2, mirroring ExergyPalette. The icon is tangerine-on-ink: tangerine
+# is dG, the work still available, which is what the gauge shows.
+ACCENT = (0xFF, 0x93, 0x00)   # --tangerine
+INK = (0x08, 0x09, 0x1A)      # --bg
+TRACK = (0x11, 0x12, 0x26)    # --bg-card, the spent arc
+# Must never appear: the retired v1 hues, and the invented gold this icon used
+# to be drawn in (plus the one-digit drift of it that reached ProviderKind).
 RETIRED_GOLD = (0xFB, 0xBF, 0x24)
 RETIRED_CYAN = (0x22, 0xD3, 0xEE)
+INVENTED_GOLD = (0xC4, 0xA3, 0x59)
+INVENTED_GOLD_DRIFT = (0xC4, 0xA3, 0x5A)
+INVENTED_GOLD_LIGHT = (0x8A, 0x6E, 0x2F)
+# Back-compat aliases so nothing silently keeps the old spelling.
+GOLD = ACCENT
+SLATE = INK
 
 
 def dist(a: tuple[int, int, int], b: tuple[int, int, int]) -> float:

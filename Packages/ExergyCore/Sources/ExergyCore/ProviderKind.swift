@@ -44,7 +44,10 @@ public enum ProviderKind: String, Sendable, Codable, CaseIterable, Equatable {
         case .copilot: return 0x7C3AED
         case .gemini: return 0x4285F4
         case .openrouter: return 0x6566F1
-        case .manual: return 0xC4A35A
+        // Not a vendor mark — a manual meter is Exergy's own, so it wears the
+        // brand accent. Was 0xC4A35A: the invented gold, already drifted a digit
+        // from the 0xC4A359 it was copied from.
+        case .manual: return 0xFF9300
         }
     }
 

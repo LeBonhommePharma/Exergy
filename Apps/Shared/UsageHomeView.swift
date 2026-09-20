@@ -23,7 +23,7 @@ public struct UsageHomeView: View {
                 } else if let chip = model.snapshot.glance.combinedChip {
                     Text(chip)
                         .font(ExergyType.headline)
-                        .foregroundStyle(Color.exergyGold)
+                        .foregroundStyle(Color.exergyAccent)
                         .minimumScaleFactor(0.7)
                         .lineLimit(2)
                         .accessibilityLabel(chip)
@@ -38,7 +38,7 @@ public struct UsageHomeView: View {
         .background(Color.exergyBackground.ignoresSafeArea())
         .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: ExergySpacing.sm) }
         .task { await model.bootstrapDemoIfNeeded() }
-        .tint(Color.exergyGold)
+        .tint(Color.exergyAccent)
     }
 
     private var showsProductHeader: Bool {
@@ -62,7 +62,7 @@ public struct UsageHomeView: View {
                 .tracking(-0.6)
             Text(ExergyIdentity.tagline)
                 .font(ExergyType.headline)
-                .foregroundStyle(Color.exergyGold)
+                .foregroundStyle(Color.exergyAccent)
             Label {
                 Text(
                     ICloudAccountPolicy.operatorLine(
@@ -215,7 +215,7 @@ public struct AddAccountView: View {
             }
         }
         .navigationTitle(ExergyCopy.addAccount.resolved)
-        .tint(Color.exergyGold)
+        .tint(Color.exergyAccent)
     }
 }
 
@@ -268,6 +268,6 @@ public struct SettingsView: View {
             }
         }
         .navigationTitle(ExergyCopy.settings.resolved)
-        .tint(Color.exergyGold)
+        .tint(Color.exergyAccent)
     }
 }

@@ -19,18 +19,26 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#1E293B` | `--color-primary` |
-| On Primary | `#FFFFFF` | `--color-on-primary` |
-| Secondary | `#334155` | `--color-secondary` |
-| Accent/CTA | `#C4A359` | `--color-accent` |
-| Background | `#0F172A` | `--color-background` |
-| Foreground | `#F8FAFC` | `--color-foreground` |
-| Muted (text) | `#94A3B8` | `--color-muted` |
-| Border | `#475569` | `--color-border` |
-| Destructive | `#EF4444` | `--color-destructive` |
-| Ring / leftover | `#C4A359` | `--color-ring` |
+| Primary | `#111226` | `--bg-card` |
+| On Primary | `#FFFFFF` | — |
+| Accent/CTA | `#FF9300` | `--tangerine` |
+| Background | `#08091A` | `--bg` |
+| Foreground | `#E4E3F5` | `--fg` |
+| Muted (text) | `#8D8CB0` | `--fg-muted` |
+| Border | `#8D8CB0` @ .7 | `--fg-muted` wash |
+| Destructive | `#FF6B6B` | `--state-fail-text` |
+| Ring / leftover | `#FF9300` | `--tangerine` |
 
-**Color Notes:** Slate `#0F172A` + remaining-work gold `#C4A359`. Not NATURaL mint, not site tangerine, not retired `#FBBF24` / `#22D3EE`. Generated CTA green `#22C55E` is unused.
+**Color Notes:** Palette v2, the values in thebonhomme.com `tokens.css`. Indigo
+ink `#08091A` + accent tangerine `#FF9300`. Tangerine is ΔG — free energy, the
+work a system can still do — which is exactly what Exergy meters, so the ring
+fill and the homepage card now carry the same colour for the same reason.
+
+This table used to read slate `#0F172A` + gold `#C4A359`. That gold was never a
+palette colour: it was invented for the Exergy card, it drifted a digit on the
+way into `ProviderKind` (`#C4A35A`), and no token file ever defined either. Not
+NATURaL mint, not retired `#FBBF24` / `#22D3EE`, and not the invented gold.
+Generated CTA green `#22C55E` remains unused.
 
 ### Typography
 
@@ -71,7 +79,7 @@
 ```css
 /* Primary Button */
 .btn-primary {
-  background: #C4A359;
+  background: #FF9300;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -102,7 +110,7 @@
 
 ```css
 .card {
-  background: #0F172A;
+  background: #111226;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -221,8 +229,8 @@ Before delivering any UI code, verify:
 
 ## Brand override (Exergy / Le Bonhomme)
 
-The generated CTA green `#22C55E` is **not** used. Exergy is Shannon’s thermodynamic sibling; chrome accent is gold `#C4A359` (dark) / `#8A6E2F` (light). Surfaces follow the MASTER slate pair (`#0F172A` / `#F8FAFC`). Inter maps to **SF Pro** on Apple platforms — do not ship Google Fonts in the apps.
+The generated CTA green `#22C55E` is **not** used. Exergy is Shannon’s thermodynamic sibling; chrome accent is tangerine `#FF9300` (dark, 8.86:1) / `#A85F00` (light, 4.51:1 — the `--tangerine-fg` AA lift, because the bare hue reads 2.06:1 on a light ground). Surfaces are the palette v2 pair (`#08091A` / `#F4F6FB`). Inter maps to **SF Pro** on Apple platforms — do not ship Google Fonts in the apps.
 
-Muted **text** is `#94A3B8` (dark) / `#475569` (light), not MASTER `--color-muted` `#272F42` (that value is a surface). Dashboard density 8 uses the 4/8pt grid. Mac HUD, Watch, and widgets stay compact. Remaining % is always visible as text (never color alone). SF Symbols, outline, one family. No emoji icons.
+Muted **text** is `#8D8CB0` (dark, 6.12:1) / `#5A6478` (light) — `--fg-muted` in each theme. Dashboard density 8 uses the 4/8pt grid. Mac HUD, Watch, and widgets stay compact. Remaining % is always visible as text (never color alone). SF Symbols, outline, one family. No emoji icons.
 
 Swift tokens live in `Packages/ExergyTheme` (`ExergyPalette`, `ExergySpacing`, `ExergyMotion`, `ExergySymbol`).

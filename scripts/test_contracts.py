@@ -200,9 +200,9 @@ def _brand_ok(rgb: bytes, label: str) -> None:
         if dist(pix, RETIRED_GOLD) <= 40 or dist(pix, RETIRED_CYAN) <= 40:
             retired += 1
     if gold_px / n < 0.02:
-        fail(f"{label} missing chrome gold #C4A359 ({gold_px / n:.3%} of pixels)")
+        fail(f"{label} missing accent tangerine #FF9300 ({gold_px / n:.3%} of pixels)")
     if slate_px / n < 0.20:
-        fail(f"{label} missing slate #0F172A ground ({slate_px / n:.3%} of pixels)")
+        fail(f"{label} missing ink #08091A ground ({slate_px / n:.3%} of pixels)")
     if retired / n > 0.005:
         fail(f"{label} too close to retired #FBBF24/#22D3EE ({retired / n:.3%} of pixels)")
 
@@ -216,7 +216,7 @@ def _corners_are_slate(rgb: bytes, size: int, label: str) -> None:
 
     for x, y in ((0, 0), (size - 1, 0), (0, size - 1), (size - 1, size - 1), (inset, inset)):
         if dist(pix(x, y), SLATE) > 18:
-            fail(f"{label} corner/safe-zone is not slate (baked mask or oversized glyph)")
+            fail(f"{label} corner/safe-zone is not the ink ground (baked mask or oversized glyph)")
             return
 
 
@@ -286,14 +286,22 @@ def test_design_system_and_tokens() -> None:
     if not master.is_file():
         fail("design-system/exergy/MASTER.md missing")
     master_text = master.read_text(encoding="utf-8")
-    if "#C4A359" not in master_text:
-        fail("Exergy MASTER.md must list remaining-gold #C4A359")
+    if "#FF9300" not in master_text:
+        fail("Exergy MASTER.md must list the accent tangerine #FF9300")
+    for banned in ("`#C4A359`", "`#C4A35A`", "`#8A6E2F`"):
+        # Allowed in the paragraph that explains the retirement, not in a table row.
+        for line in master_text.splitlines():
+            if banned in line and line.lstrip().startswith("|"):
+                fail(f"Exergy MASTER.md still specifies the invented gold {banned}")
     if "| Accent/CTA | `#22C55E`" in master_text:
         fail("Exergy MASTER CTA must be gold, not generated green")
     theme = read("Packages/ExergyTheme/Sources/ExergyTheme/ExergyTheme.swift")
     for needle in (
-        "0xC4A359",
-        "0x0F172A",
+        # Assert on the DECLARATION, not the bare hex: a comment mentioning the
+        # retired value would otherwise satisfy this and hand back a false pass.
+        "accentDark: UInt32 = 0xFF9300",
+        "darkBackground: UInt32 = 0x08091A",
+        "darkInk: UInt32 = 0xE4E3F5",
         "accessibilityReduceMotion",
         "gauge.with.needle",
         "ExergyPalette",
