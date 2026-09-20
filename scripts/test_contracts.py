@@ -136,18 +136,68 @@ def test_privacy_manifests() -> None:
                 )
 
 
+# Every PRODUCT_BUNDLE_IDENTIFIER each project is expected to declare, and how
+# many times. Adding a target means adding its id here — which is the point: a
+# new bundle identifier should be looked at, not absorbed silently.
+EXPECTED_BUNDLE_IDS: dict[str, dict[str, int]] = {
+    "Apps/iOS/project.yml": {
+        "com.lebonhommepharma.exergy": 1,
+        "com.lebonhommepharma.exergy.widget": 1,
+        "com.lebonhommepharma.exergy.watchkitapp": 1,
+        "com.lebonhommepharma.exergy.watchkitapp.complication": 1,
+    },
+    "Apps/Mac/project.yml": {"com.lebonhommepharma.exergy.mac": 1},
+    "Apps/iPad/project.yml": {"com.lebonhommepharma.exergy.pad": 1},
+}
+
+_BUNDLE_ID_RE = re.compile(
+    r"^[ \t]*PRODUCT_BUNDLE_IDENTIFIER:[ \t]*(\S+)[ \t]*$", re.M
+)
+
+
+def _declared_bundle_ids(text: str) -> dict[str, int]:
+    """Exact identifier VALUES and their counts, anchored to whole lines.
+
+    Anchoring is what closes the hole. `"...: com.lebonhommepharma.exergy" in
+    text` matched as a prefix, so the widget, watch app and complication lines
+    each satisfied the check for the MAIN app: its identifier could be deleted
+    or mistyped and a sibling would cover for it. Capturing the value up to end
+    of line makes `com.lebonhommepharma.exergy.widget` a different string, not
+    an occurrence of `com.lebonhommepharma.exergy`.
+
+    No YAML parser: these files are plain `KEY: value` lines with no quoting,
+    inline comments or line folding, so a line-anchored match is exact here.
+    If that ever stops being true this will start reporting missing ids rather
+    than silently passing, which is the right way round to be wrong.
+    """
+    counts: dict[str, int] = {}
+    for value in _BUNDLE_ID_RE.findall(text):
+        counts[value] = counts.get(value, 0) + 1
+    return counts
+
+
 def test_project_bundle_ids() -> None:
-    ios = read("Apps/iOS/project.yml")
     mac = read("Apps/Mac/project.yml")
     pad = read("Apps/iPad/project.yml")
-    if "PRODUCT_BUNDLE_IDENTIFIER: com.lebonhommepharma.exergy" not in ios:
-        fail("iOS bundle id missing")
-    if "com.lebonhommepharma.exergy.watchkitapp" not in ios:
-        fail("watch bundle id missing")
-    if "com.lebonhommepharma.exergy.mac" not in mac:
-        fail("mac bundle id missing")
-    if "com.lebonhommepharma.exergy.pad" not in pad:
-        fail("pad bundle id missing")
+    ios = read("Apps/iOS/project.yml")
+
+    for rel, expected in EXPECTED_BUNDLE_IDS.items():
+        found = _declared_bundle_ids(read(rel))
+        if found == expected:
+            continue
+        for bundle_id, want in sorted(expected.items()):
+            got = found.get(bundle_id, 0)
+            if got != want:
+                fail(
+                    f"{rel}: expected {want} declaration(s) of {bundle_id}, "
+                    f"found {got}"
+                )
+        for bundle_id in sorted(set(found) - set(expected)):
+            fail(
+                f"{rel}: undeclared bundle id {bundle_id} "
+                f"(x{found[bundle_id]}) — add it to EXPECTED_BUNDLE_IDS "
+                "deliberately or remove it"
+            )
     if "LSUIElement: true" not in mac:
         fail("Mac must be a menu-bar extra (LSUIElement)")
     if "WKApplication: true" not in ios:
