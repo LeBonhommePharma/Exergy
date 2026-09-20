@@ -62,6 +62,13 @@ public enum ExergySpacing {
     public static let md: CGFloat = 16
     public static let lg: CGFloat = 24
     public static let xl: CGFloat = 32
+    /// Gap ABOVE a section header. Sections need more air above than their own
+    /// rows need between each other, or every level reads as one flat list —
+    /// which is what a uniform 8pt stack was doing here.
+    public static let section: CGFloat = 28
+    /// Gap between a section header and its first row. Deliberately tighter
+    /// than `section`: a label belongs to what follows it.
+    public static let sectionLead: CGFloat = 10
 }
 
 public enum ExergyRadius {
@@ -91,7 +98,8 @@ public enum ExergyRingGeometry {
 public enum ExergyMotion {
     public static let short: Double = 0.18
     public static let standard: Double = 0.22
-    public static let reveal: Double = 0.32
+    /// 300ms is the top of the micro-interaction band; 320 sat just outside it.
+    public static let reveal: Double = 0.30
 
     public static func animation(reduceMotion: Bool, duration: Double = standard) -> Animation? {
         reduceMotion ? nil : .easeOut(duration: duration)

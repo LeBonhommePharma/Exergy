@@ -112,10 +112,15 @@ public struct UsageHomeView: View {
     }
 
     private func accountList(_ accounts: [ExergyAccount]) -> some View {
-        VStack(alignment: .leading, spacing: ExergySpacing.sm) {
-            Text(ExergyCopy.accounts.resolved)
-                .font(ExergyType.headline)
-                .foregroundStyle(Color.exergyInk)
+        // Two spacings, not one. The label sits close to the rows it names
+        // (sectionLead) while the whole block is pushed away from the meters
+        // above it (section). A single uniform gap made the heading look like
+        // another row.
+        VStack(alignment: .leading, spacing: ExergySpacing.sectionLead) {
+            ExergySectionHeader(
+                ExergyCopy.accounts.resolved,
+                trailing: accounts.isEmpty ? nil : "\(accounts.count)"
+            )
             if accounts.isEmpty {
                 ExergyEmptyState()
             } else {
@@ -128,6 +133,7 @@ public struct UsageHomeView: View {
                 }
             }
         }
+        .padding(.top, ExergySpacing.section - ExergySpacing.sectionLead)
     }
 }
 

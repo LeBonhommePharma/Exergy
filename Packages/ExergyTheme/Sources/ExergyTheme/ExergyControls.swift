@@ -30,6 +30,42 @@ private struct ExergyPressStyleBody: View {
     }
 }
 
+/// Section label. The site calls this a kicker: uppercase, tracked, mono, muted.
+///
+/// Sections used to be set in `ExergyType.headline` — the same face and weight
+/// as the card titles underneath them. Two levels rendered identically is not a
+/// hierarchy, it is a list, and on the dense surfaces it read as one. Dropping
+/// the label in size and raising its tracking separates the levels without
+/// adding a rule or a box.
+public struct ExergySectionHeader: View {
+    public var title: String
+    public var trailing: String?
+
+    public init(_ title: String, trailing: String? = nil) {
+        self.title = title
+        self.trailing = trailing
+    }
+
+    public var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: ExergySpacing.sm) {
+            Text(title.uppercased())
+                .font(.caption2.weight(.semibold))
+                .tracking(0.8)
+                .foregroundStyle(Color.exergyMute)
+            if let trailing {
+                Spacer(minLength: ExergySpacing.xs)
+                // Counts are data, so they stay monospaced and stay dashed when
+                // unknown — same rule as every other number in the app.
+                Text(trailing)
+                    .font(.caption2.monospacedDigit())
+                    .foregroundStyle(Color.exergyMute)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
+    }
+}
+
 public struct ExergyScreen<Content: View>: View {
     public var content: Content
 
@@ -104,18 +140,28 @@ public struct ExergyPrimaryButton: View {
         Button(action: action) {
             Text(title)
                 .font(ExergyType.headline)
-                .foregroundStyle(Color.exergyBackground)
+                // Enabled: ink on the accent. Disabled: muted text on a quiet
+                // surface, NOT ink-on-mute dimmed to 0.55 — that stacked a
+                // translucent fill under low-contrast text and pushed the label
+                // under the 3:1 floor for a disabled control. A disabled button
+                // should read as unavailable, not as unreadable.
+                .foregroundStyle(enabled ? Color.exergyBackground : Color.exergyMute)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, ExergySpacing.compact)
                 .frame(minHeight: ExergyIconSize.hit)
                 .background(
-                    enabled ? Color.exergyAccent : Color.exergyMute,
+                    enabled ? Color.exergyAccent : Color.exergySurface,
                     in: RoundedRectangle(cornerRadius: ExergyRadius.sm, style: .continuous)
                 )
+                .overlay {
+                    if !enabled {
+                        RoundedRectangle(cornerRadius: ExergyRadius.sm, style: .continuous)
+                            .strokeBorder(Color.exergyBorder.opacity(0.5), lineWidth: 1)
+                    }
+                }
         }
         .buttonStyle(ExergyPressStyle())
         .disabled(!enabled)
-        .opacity(enabled ? 1 : 0.55)
         .accessibilityLabel(title)
     }
 }
