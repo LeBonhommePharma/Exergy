@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import math
 import pathlib
+import plistlib
 import re
 import sys
 
@@ -86,16 +87,53 @@ def test_no_secrets_in_cloud_keys() -> None:
 
 
 def test_privacy_manifests() -> None:
+    """Assert the VALUE of NSPrivacyTracking, not that the file contains a <false/>.
+
+    The old check was `"<false/>" in text`. It passed only by accident: these
+    manifests happen to contain exactly one <false/>, and it happens to be the
+    one that matters. Add a single collected-data-type entry carrying its own
+    <false/> — NSPrivacyCollectedDataTypeLinked, say — and NSPrivacyTracking
+    could be flipped to <true/> with the check still green and nothing said.
+    The identical check in ClusterFuck was already broken for exactly this
+    reason: three <false/> values, so it could never fail.
+
+    plistlib is stdlib, so parsing costs nothing and removes the coincidence.
+    """
     for rel in (
         "Apps/iOS/Resources/PrivacyInfo.xcprivacy",
         "Apps/Mac/Resources/PrivacyInfo.xcprivacy",
         "Apps/watchOS/Resources/PrivacyInfo.xcprivacy",
     ):
-        text = read(rel)
-        if "<false/>" not in text:
-            fail(f"{rel} must set NSPrivacyTracking false")
-        if "NSPrivacyCollectedDataTypes" not in text:
+        path = ROOT / rel
+        try:
+            plist = plistlib.loads(path.read_bytes())
+        except Exception as exc:  # malformed plist is a failure, not a skip
+            fail(f"{rel} is not a readable plist: {exc}")
+            continue
+        if not isinstance(plist, dict):
+            fail(f"{rel} must be a plist dictionary")
+            continue
+
+        tracking = plist.get("NSPrivacyTracking", "<missing>")
+        if tracking is not False:
+            fail(
+                f"{rel} NSPrivacyTracking must be exactly false, got {tracking!r}. "
+                "App Privacy for this app is Data Not Collected."
+            )
+
+        if "NSPrivacyCollectedDataTypes" not in plist:
             fail(f"{rel} missing collected data types")
+        else:
+            collected = plist["NSPrivacyCollectedDataTypes"]
+            if not isinstance(collected, list):
+                fail(f"{rel} NSPrivacyCollectedDataTypes must be an array")
+            elif collected:
+                # Not a style rule: the App Store listing claims Data Not
+                # Collected, so a non-empty array here makes the listing false.
+                fail(
+                    f"{rel} declares {len(collected)} collected data type(s); "
+                    "this app collects nothing and the listing says so"
+                )
 
 
 def test_project_bundle_ids() -> None:
@@ -281,20 +319,78 @@ def test_zero_third_party_deps() -> None:
         fail("ExergyCore must not grow remote Swift dependencies")
 
 
+# Colours no palette-table row may carry, whatever the role or the letter case.
+# Prose that explains a retirement may still name them; only table rows are
+# checked, because a row is a specification and a paragraph is a note.
+RETIRED_TABLE_HEXES = frozenset({
+    "#22C55E",  # generated CTA green, never used by Exergy
+    "#C4A359",  # invented gold
+    "#C4A35A",  # its one-digit drift, which reached ProviderKind
+    "#8A6E2F",  # the invented gold's light twin
+    "#FBBF24",  # palette v1 gold
+    "#22D3EE",  # palette v1 cyan
+    "#0F172A",  # Tailwind slate ground, replaced by --bg #08091A
+})
+
+
+def _master_palette_rows(text: str) -> dict[str, str]:
+    """Map role -> upper-case hex for every markdown table row carrying one.
+
+    Tolerates column padding, alignment rows, backticks, and trailing notes
+    such as "`#8D8CB0` @ .7". Case is normalised so `#22c55e` cannot hide.
+    """
+    rows: dict[str, str] = {}
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            continue
+        cells = [c.strip() for c in stripped.strip("|").split("|")]
+        if len(cells) < 2:
+            continue
+        role = cells[0].strip("`* ").strip().lower()
+        if not role or set(role) <= set("-: "):
+            continue  # header separator
+        found = re.search(r"#[0-9A-Fa-f]{3,8}\b", cells[1])
+        if found:
+            rows[role] = found.group(0).upper()
+    return rows
+
+
 def test_design_system_and_tokens() -> None:
     master = ROOT / "design-system/exergy/MASTER.md"
     if not master.is_file():
         fail("design-system/exergy/MASTER.md missing")
     master_text = master.read_text(encoding="utf-8")
-    if "#FF9300" not in master_text:
-        fail("Exergy MASTER.md must list the accent tangerine #FF9300")
-    for banned in ("`#C4A359`", "`#C4A35A`", "`#8A6E2F`"):
-        # Allowed in the paragraph that explains the retirement, not in a table row.
-        for line in master_text.splitlines():
-            if banned in line and line.lstrip().startswith("|"):
-                fail(f"Exergy MASTER.md still specifies the invented gold {banned}")
-    if "| Accent/CTA | `#22C55E`" in master_text:
-        fail("Exergy MASTER CTA must be gold, not generated green")
+
+    # Parse the palette table instead of matching one spelling of one row.
+    #
+    # The old guard was `"| Accent/CTA | `#22C55E`" in master_text`: a single
+    # exact substring, pinned to one column position, one letter case, and one
+    # off-palette green. `#22c55e` lowercase slipped past it, so did any other
+    # wrong colour, and so did reformatting the table. It was reachable but
+    # close to useless. These assert the rule the row is supposed to carry.
+    rows = _master_palette_rows(master_text)
+    if not rows:
+        fail("Exergy MASTER.md palette table did not parse — the guard is blind")
+
+    accent = rows.get("accent/cta")
+    if accent is None:
+        fail("Exergy MASTER.md palette table has no Accent/CTA row")
+    elif accent != "#FF9300":
+        fail(
+            f"Exergy MASTER.md Accent/CTA is {accent}; palette v2 accent is "
+            "#FF9300 (--tangerine). Generated CTA green and the invented gold "
+            "are both retired."
+        )
+
+    # No table row may carry a retired or invented colour, whatever its role
+    # or spelling. Prose explaining the retirement is untouched — only rows.
+    for role, hexcode in sorted(rows.items()):
+        if hexcode in RETIRED_TABLE_HEXES:
+            fail(
+                f"Exergy MASTER.md row {role!r} specifies retired colour "
+                f"{hexcode}"
+            )
     theme = read("Packages/ExergyTheme/Sources/ExergyTheme/ExergyTheme.swift")
     for needle in (
         # Assert on the DECLARATION, not the bare hex: a comment mentioning the
