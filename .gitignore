@@ -1,0 +1,9 @@
+.build/
+.DS_Store
+*.xcodeproj
+**/.build/
+**/Package.resolved
+DerivedData/
+xcuserdata/
+**/__pycache__/
+*.pyc

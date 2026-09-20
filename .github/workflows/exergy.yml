@@ -1,0 +1,22 @@
+name: Exergy
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python contracts
+        run: python3 scripts/test_contracts.py && python3 scripts/validate-submission.py
+
+  swift:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: ExergyCore
+        run: swift test --package-path Packages/ExergyCore
+      - name: ExergyTheme
+        run: swift test --package-path Packages/ExergyTheme
