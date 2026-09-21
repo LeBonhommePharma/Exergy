@@ -7,3 +7,5 @@ DerivedData/
 xcuserdata/
 **/__pycache__/
 *.pyc
+Apps/*/Resources/GeneratedInfo.plist
+Apps/*/Resources/*.entitlements
