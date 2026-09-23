@@ -2,11 +2,15 @@
 
 ## Identity
 
+One identifier across iOS, iPadOS and macOS — one App Store Connect record, one
+listing. Decided by LP on 2026-09-21; rationale and Apple's requirements in
+[bundle-id-topology.md](bundle-id-topology.md). NATURaL is deliberately exempt.
+
+
 | Field | Value |
 |---|---|
 | Name | Exergy |
-| Bundle ID (iOS) | com.lebonhommepharma.exergy |
-| Bundle ID (Mac) | com.lebonhommepharma.exergy.mac |
+| Bundle ID (all platforms) | com.lebonhommepharma.exergy |
 | SKU | exergy-usage-1 |
 | Primary language | English (U.S.) |
 | Category | Developer Tools |

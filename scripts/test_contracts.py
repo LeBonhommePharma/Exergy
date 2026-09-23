@@ -146,7 +146,10 @@ EXPECTED_BUNDLE_IDS: dict[str, dict[str, int]] = {
         "com.lebonhommepharma.exergy.watchkitapp": 1,
         "com.lebonhommepharma.exergy.watchkitapp.complication": 1,
     },
-    "Apps/Mac/project.yml": {"com.lebonhommepharma.exergy.mac": 1},
+    # One identifier per app, shared across platforms (LP, 2026-09-21). The Mac
+    # app deliberately declares the SAME id as iOS so both ship under one App
+    # Store Connect record. See Docs/AppStore/bundle-id-topology.md.
+    "Apps/Mac/project.yml": {"com.lebonhommepharma.exergy": 1},
     "Apps/iPad/project.yml": {"com.lebonhommepharma.exergy.pad": 1},
 }
 
